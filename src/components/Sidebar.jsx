@@ -1,10 +1,10 @@
 import React from 'react'
 
-function Sidebar({SidebarItems=[]}) {
+function Sidebar({SidebarItems=[]}){
   return (
     <aside>      
       <ul>
-        {SidebarItems.map((item, index) => (
+        {SidebarItems.map((item, index)=>(
           <li key={index}>{item}</li>
         ))}
       </ul>
