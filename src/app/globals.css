@@ -5,8 +5,19 @@
   @apply transition-colors duration-800 ease-in-out;
 }
 .active {
-  @apply bg-gray-700 ;
+  @apply font-semibold rounded-md;
 }
+
+/* Sidebar specific */
+.sidebar .active {
+  @apply bg-green-700 text-white; /* Agro default */
+}
+
+/* Navbar specific */
+.navbar .active {
+  @apply underline underline-offset-4;
+}
+
 /* Chrome, Safari, Edge */
 *::-webkit-scrollbar {
   display: none;

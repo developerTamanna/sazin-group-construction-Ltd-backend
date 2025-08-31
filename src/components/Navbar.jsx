@@ -1,34 +1,68 @@
 "use client";
-import Link from 'next/link';
-import React from 'react'
-import Image from 'next/image';
-import { usePathname } from 'next/navigation';
-const navlist=[
-    {title: "Sazin-Construction", link: "/Sazin-Construction"},
-    {title: "Agro&Fisheries", link: "/agro&fisheries"},
-    {title: "Helmets&(PPE)", link: "/helmet&safty-accessories"},
-]
+import Link from "next/link";
+import React, { useState } from "react";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+
+const navlist = [
+  { title: "Sazin-Construction", link: "/sazin-construction" },
+  { title: "Agro&Fisheries", link: "/agro&fisheries" },
+  { title: "Helmets&(PPE)", link: "/helmet&safty-accessories" },
+];
+
 function Navbar() {
-    const pathName=usePathname();
+  const pathName = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
-    <div className='fixed inline-flex justify-between  items-center rounded-tl-md rounded-tr-md z-[999] top-0 left-0 right-0 bg-gray-800 text-white p-2 text-lg font-bold '>
-        <h1 className='text-3xl font-bold'>logo</h1>
-        <div className='flex space-x-4'>
-            {navlist?.map((item) => (
-            <Link key={item.title} href={item.link} className={`inline-block p-2 ${pathName === item.link ? 'active' : 'hover:bg-gray-700'} rounded cursor-pointer`}>
-                {item.title}
-            </Link>
-            ))}
+    <nav className="bg-white">
+      <div className="flex justify-between items-center px-4 md:px-6 h-16 w-full relative">
+        {/* Left side - Menu + Dashboard */}
+        <div className="flex items-center gap-3 relative">
+          {/* Menu button */}
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="text-2xl focus:outline-none"
+          >
+            ☰
+          </button>
+          <span className="text-lg font-semibold">Dashboard</span>
+
+          {/* Dropdown menu */}
+          {menuOpen && (
+            <div className="absolute top-14 left-0 bg-blur/80 bg-white/80 border border-gray-200 rounded-md shadow-lg w-60">
+              <ul className="py-2">
+                {navlist.map((item) => (
+                  <li key={item.title}>
+                    <Link
+                      href={item.link}
+                      className={`block px-4 py-2 text-gray-700 hover:bg-gray-100 ${
+                        pathName === item.link ? "bg-gray-200 font-semibold" : ""
+                      }`}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      {item.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
-        <div className='profile'>
-           <Image 
-           src="/path/to/profile.jpg" 
-           alt="Profile" 
-           width={40} height={40}
-           className="rounded-full w-12 h-12 border-1 border-white" />
+
+        {/* Right side - Profile */}
+        <div>
+          <Image
+            src="/path/to/profile.jpg"
+            alt="Profile"
+            width={40}
+            height={40}
+            className="rounded-full border-2 border-gray-200 cursor-pointer"
+          />
         </div>
-    </div>
-  )
+      </div>
+    </nav>
+  );
 }
 
-export default Navbar
+export default Navbar;
