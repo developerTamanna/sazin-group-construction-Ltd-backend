@@ -27,7 +27,7 @@ export default function RootLayout({ children }) {
       >
         <SidebarProvider>
           <Navbar />
-          <div className="mt-17 h-[calc(100vh-68px)] overflow-auto flex items-start justify-center">
+          <div className="mt-16 h-[calc(100vh-64px)] overflow-auto flex items-start justify-center">
             {/* Sidebar সবসময় থাকবে */}
             <div className="w-[20%] min-w-[280px] h-full shadow-lg">
               <SidebarWrapper />
