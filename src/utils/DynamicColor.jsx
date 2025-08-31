@@ -17,7 +17,7 @@ const colorMap = {
   'sazin-construction': {
     bgColor: 'bg-red-500',
     textColor: 'text-red-800',
-  },
+  }, 
 };
 
 // ✅ Custom Hook
