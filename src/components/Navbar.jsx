@@ -2,18 +2,20 @@
 import Link from 'next/link';
 import React from 'react'
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 const navlist=[
     {title: "Sazin-Construction", link: "/Sazin-Construction"},
     {title: "Agro&Fisheries", link: "/agro&fisheries"},
     {title: "Helmets&(PPE)", link: "/helmet&safty-accessories"},
 ]
 function Navbar() {
+    const pathName=usePathname();
   return (
     <div className='fixed inline-flex justify-between  items-center rounded-tl-md rounded-tr-md z-[999] top-0 left-0 right-0 bg-gray-800 text-white p-2 text-lg font-bold '>
         <h1 className='text-3xl font-bold'>logo</h1>
         <div className='flex space-x-4'>
             {navlist?.map((item) => (
-            <Link key={item.title} href={item.link} className="inline-block p-2 hover:bg-gray-700 rounded cursor-pointer">
+            <Link key={item.title} href={item.link} className={`inline-block p-2 ${pathName === item.link ? 'active' : 'hover:bg-gray-700'} rounded cursor-pointer`}>
                 {item.title}
             </Link>
             ))}
