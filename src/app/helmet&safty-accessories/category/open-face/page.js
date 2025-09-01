@@ -1,8 +1,12 @@
 import React from 'react'
+import Card from './components/card'
 
 function page() {
   return (
-    <div>page</div>
+    <div>
+        <h1 className='text-2xl font-bold text-center'>All Products</h1>
+        <Card />
+    </div>
   )
 }
 

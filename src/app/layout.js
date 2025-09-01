@@ -3,6 +3,7 @@ import "./globals.css";
 import SidebarWrapper from "./components/SidebarWrapper";
 import { SidebarProvider } from "@/context/SidebarContext";
 import Navbar from "@/components/Navbar";
+import Providers from "@/utils/QueryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,28 +26,30 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SidebarProvider>
-          {/* <Navbar /> */}
-          <div className="h-[calc(100vh-64px)] overflow-auto flex items-start justify-center">
-            {/* Sidebar সবসময় থাকবে */}
-            <div className="w-[20%] min-w-[280px] h-full shadow-lg">
-              <SidebarWrapper />
-            </div>
-            {/* <main className="flex-1 rounded-br-md overflow-auto h-full p-4 bg-gray-50">{children}</main> */}
-            {/* //update code  */}
-            <main className="flex-1 rounded-br-md overflow-auto h-full p-4 bg-gray-200">
-              {/* Top Navbar */}
-              <div className="mb-4">
-                <Navbar />
+        <Providers>
+          <SidebarProvider>
+           <div className="h-[100vh] overflow-auto flex items-start justify-center">
+                <div className="h-[100vh] w-full overflow-auto flex items-start justify-center">
+                  {/* Sidebar সবসময় থাকবে */}
+                    <div className="w-[20%] min-w-[280px] h-full shadow-lg">
+
+                      <SidebarWrapper />
+                    </div>
+                    {/* <main className="flex-1 rounded-br-md overflow-auto h-full p-4 bg-gray-50">{children}</main> */}
+                    {/* //update code  */}
+                    <main className="flex-1 rounded-br-md overflow-auto h-full bg-gray-100">
+                      {/* Top Navbar */}
+                        <Navbar />
+
+                      {/* Main Content */}
+                      <div className=" p-4">
+                        {children}
+                      </div>
+                    </main>
               </div>
-
-              {/* Main Content */}
-              <div className="">{children}</div>
-            </main>
-
-
-          </div>
+            </div>
         </SidebarProvider>
+      </Providers>
       </body>
     </html>
   );

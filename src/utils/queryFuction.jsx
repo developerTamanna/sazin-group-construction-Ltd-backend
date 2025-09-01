@@ -4,7 +4,7 @@ import React, { useRef, useEffect, use } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchProducts } from "./FetchFunction";
 
-export default function QueryFunction({category}) {
+export default function QueryFunction({value ,ky}) {
   const {
     data,
     fetchNextPage,
@@ -13,13 +13,17 @@ export default function QueryFunction({category}) {
     status,
     refetch
   } = useInfiniteQuery({
-    queryKey: ["products",category],
-    queryFn: ({ pageParam = 1 }) => fetchProducts(pageParam,category ),
+    queryKey: ["products",value,ky],
+    queryFn: ({ pageParam = 1 }) => fetchProducts(pageParam,value,ky ),
     getNextPageParam: (lastPage) => lastPage.nextPage,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    catchTimeout: 10 * 1000, // 10 seconds
+    refetchOnWindowFocus: false,
   });
   useEffect(() => {
     refetch();
-  }, [category, refetch]);  
+    console.log("Refetching data...", { value, ky });
+  }, [value, refetch, ky]);
 
   const loadMoreRef = useRef();
 
@@ -47,17 +51,9 @@ export default function QueryFunction({category}) {
 
   return (
       <>
-        {data?.pages.map((page, i) => (
-         <React.Fragment key={i}>
-            {page?.data.map((item) => (
-              <div
-                key={item.id}
-              >
-                <Card data={item} />
-              </div>
-            ))}
-        </React.Fragment>
-        ))}
+
+        <Card data={data} />
+  
 
       {/* Sentinel element for IntersectionObserver */}
       <div ref={loadMoreRef} className=" w-full z-[999]  h-10 mt-5 text-center">
