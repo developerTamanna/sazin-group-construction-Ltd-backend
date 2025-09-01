@@ -34,7 +34,7 @@ export default function RootLayout({ children }) {
             </div>
             {/* <main className="flex-1 rounded-br-md overflow-auto h-full p-4 bg-gray-50">{children}</main> */}
             {/* //update code  */}
-            <main className="flex-1 rounded-br-md overflow-auto h-full p-4 bg-gray-100">
+            <main className="flex-1 rounded-br-md overflow-auto h-full p-4 bg-gray-200">
               {/* Top Navbar */}
               <div className="mb-4">
                 <Navbar />

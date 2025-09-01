@@ -1,17 +1,10 @@
 import React from 'react'
-import Card from '@/components/Card'
-function AllCard() {
-    const data={
-    name:"Helmet & Safety Accessories",
-    image:"/path/to/image.jpg",
-    price:"$100",
-    description:"This is a great helmet."
-    }
-  return (
-    <div>
-      <Card data={data} />
-    </div>
-  )
+import QueryFunction from '../../utils/queryFuction'
+export default function AllCard() {
+ return(
+   <div className='relative flex h-full  w-full flex-wrap justify-center items-start gap-4 mt-4'>
+     <QueryFunction category="all" />
+   </div>
+ )
 }
 
-export default AllCard
