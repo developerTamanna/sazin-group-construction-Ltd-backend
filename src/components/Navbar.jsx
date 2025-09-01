@@ -30,8 +30,8 @@ function Navbar() {
 
           {/* Dropdown menu */}
           {menuOpen && (
-            <div className="absolute top-14 left-0 bg-blur/80 bg-white/80 border border-gray-200 rounded-md shadow-lg w-60">
-              <ul className="py-2">
+            <div className="absolute top-14 left-0  bg-white/95 border border-gray-200 rounded-md shadow-lg w-60">
+              <ul className="p-2 space-y-2">
                 {navlist.map((item) => (
                   <li key={item.title}>
                     <Link
