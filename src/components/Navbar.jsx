@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import Image from 'next/image';
 import { useSidebar } from '@/context/SidebarContext';
 const navlist=[
-    {title: "Sazin-Construction", link: "/Sazin-Construction"},
+    {title: "Sazin-Construction", link: "/sazin-construction"},
     {title: "Agro&Fisheries", link: "/agro&fisheries"},
     {title: "Helmets&(PPE)", link: "/helmet&safty-accessories"},
 ];

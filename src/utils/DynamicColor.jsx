@@ -26,6 +26,17 @@ const colorMap = {
     hover: "hover:bg-black hover:text-white",
     accent: "text-yellow-500",
   },
+  "sazin-construction": {
+    root: "/sazin-construction",
+    bgColor: "bg-blue-800",
+    textColor: "text-gray-100",
+    cardBorder: "border-2 border-red-500",
+    navbar: "bg-white shadow-md",
+    sidebarActive: "bg-white text-black",
+    active: "bg-blue-800 text-white",
+    hover: "hover:bg-black hover:text-white",
+    accent: "text-yellow-500",
+  },
 
 };
 
