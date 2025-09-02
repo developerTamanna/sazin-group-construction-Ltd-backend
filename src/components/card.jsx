@@ -53,7 +53,7 @@ function Table({ data }) {
                 {page?.data?.map((item, index) => (
                   <tr
                     key={index}
-                    className="border-b hover:bg-gray-50 transition"
+                    className="border-b border-gray-200  transition odd:bg-gray-50 even:bg-white"
                   >
                     <td className="p-3">
                       <Image
