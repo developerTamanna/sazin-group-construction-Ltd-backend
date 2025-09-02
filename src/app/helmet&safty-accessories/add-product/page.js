@@ -3,8 +3,7 @@ import Form from './components/form'
 
 function page() {
   return (
-    <div>
-      <h1>Add Product</h1>
+    <div className="bg-blue-100">
       <Form />
     </div>
   )

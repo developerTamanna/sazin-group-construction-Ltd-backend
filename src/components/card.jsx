@@ -53,7 +53,7 @@ function Table({ data }) {
                 {page?.data?.map((item, index) => (
                   <tr
                     key={index}
-                    className="border-b border-gray-200  transition odd:bg-gray-50 even:bg-white"
+                    className="border-b border-gray-200  transition even:bg-gray-50 odd:bg-white"
                   >
                     <td className="p-3">
                       <Image
@@ -64,7 +64,7 @@ function Table({ data }) {
                         className="rounded-md object-cover"
                       />
                     </td>
-                    <td className={`p-3 font-semibold ${dynamicTheme?.textColor}`}>
+                    <td className={`p-3 font-semi-bold`}>
                       {item?.title}
                     </td>
                     <td className="p-3">{item?.productName}</td>
