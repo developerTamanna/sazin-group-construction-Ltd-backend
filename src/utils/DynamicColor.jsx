@@ -21,6 +21,7 @@ const colorMap = {
     imageCard:
       'border-2 border-green-300 rounded-xl p-6 hover:shadow-lg transition',
   },
+
   'helmet&safty-accessories': {
     root: '/helmet&safty-accessories',
     bgColor: 'bg-blue-800',
