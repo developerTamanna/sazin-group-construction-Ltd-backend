@@ -25,8 +25,9 @@ const colorMap = {
   'helmet&safty-accessories': {
     root: '/helmet&safty-accessories',
     bgColor: 'bg-blue-800',
+    mainBg: 'bg-blue-100',
     textColor: 'text-gray-100',
-    cardBorder: 'border-2 border-red-500',
+    cardBorder: 'border border-blue-200',
     navbar: 'bg-white shadow-md',
     sidebarActive: 'bg-white text-black',
     active: 'bg-blue-800 text-white',
