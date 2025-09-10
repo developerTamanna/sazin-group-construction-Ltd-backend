@@ -25,7 +25,7 @@ const colorMap = {
   'helmet&safty-accessories': {
     root: '/helmet&safty-accessories',
     bgColor: 'bg-blue-800',
-    mainBg: 'bg-blue-100',
+    // mainBg: 'bg-blue-100',
     textColor: 'text-gray-100',
     cardBorder: 'border border-blue-200',
     navbar: 'bg-white shadow-md',
@@ -43,13 +43,20 @@ const colorMap = {
   'sazin-construction': {
     root: '/sazin-construction',
     bgColor: 'bg-blue-800',
+    mainBg: 'bg-blue-100',
     textColor: 'text-gray-100',
-    cardBorder: 'border-2 border-red-500',
+    cardBorder: 'border border-blue-200',
     navbar: 'bg-white shadow-md',
     sidebarActive: 'bg-white text-black',
     active: 'bg-blue-800 text-white',
     hover: 'hover:bg-black hover:text-white',
-    accent: 'text-yellow-500',
+    accent: 'text-blue-600',
+    formBg: 'bg-white',
+    formButton: 'bg-blue-600 hover:bg-blue-700',
+    formInput: 'border-blue-300 focus:ring-2 focus:ring-blue-400',
+    formLabel: 'text-blue-800',
+    imageCard:
+      'border-2 border-blue-300 rounded-xl p-6 hover:shadow-lg transition',
   },
 };
 
