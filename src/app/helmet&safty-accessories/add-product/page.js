@@ -3,7 +3,7 @@ import Form from './components/form'
 
 function page() {
   return (
-    <div className="bg-blue-100">
+    <div>
       <Form />
     </div>
   )
