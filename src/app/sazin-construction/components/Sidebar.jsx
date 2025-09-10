@@ -12,13 +12,21 @@ import { useSidebar } from '@/context/SidebarContext';
 const SidebarItems = [
   { id: 1, title: "Dashboard", icon: <MdDashboard />, path: '/sazin-construction' },
   { id: 2, title: "Add Project", icon: <MdShoppingCart />, path: '/sazin-construction/add-project' },
-  { id: 3, title: "Add News", icon: <MdShoppingCart />, path: '/sazin-construction/add-news' },
-  { id: 4, title: "Post Job", icon: <MdShoppingCart />, path: '/sazin-construction/post-job' },
 
-  { id: 5, title: "All Projects", icon: <MdInventory2 />, path: '/sazin-construction/all-projects' },
-  { id: 6, title: "Featured Projects", icon: <MdWorkspacePremium />, path: '/sazin-construction/featured-projects' },
-  {
+   {
     id: 7,
+    title: "All Projects",
+    icon: <MdInventory2 />,
+    path: '/sazin-construction/all-projects'
+  },
+  {
+    id: 8,
+    title: "Featured Projects",
+    icon: <MdWorkspacePremium />,
+    path: '/sazin-construction/featured-projects'
+  },
+  {
+    id: 9,
     title: "Project Category",
     icon: <MdCategory />,
     categories: [
@@ -48,6 +56,63 @@ const SidebarItems = [
       },
     ]
   },
+
+   {id:5, title: "Certifications", icon: <MdShoppingCart />, path: '/sazin-construction/certifications',
+      categories:[
+          {id:1, title:"Add Certification", icon:<FaTools/>, path:'/sazin-construction/certifications/add-certification'},
+          {id:2, title:"Manage Certification", icon:<FaTools/>, path:'/sazin-construction/certifications/manage-certification'},
+      ]
+   },
+
+   {id:6, title: "Achievements", icon: <MdShoppingCart />, path: '/sazin-construction/achievement',
+      categories:[
+          {id:1, title:"Add Achievement", icon:<FaTools/>, path:'/sazin-construction/achievement/add-achievement'},
+          {id:2, title:"Manage Achievement", icon:<FaTools/>, path:'/sazin-construction/achievement/manage-achievement'},
+      ]
+   },
+
+     {
+    id:12 ,title: 'Clients & partners', icon: <MdShoppingCart />, path: '/sazin-construction/clients&partners',
+    categories:[
+        {id:1, title:"Add Client", icon:<FaTools/>, path:'/sazin-construction/clients&partners/add-client'},
+        {id:2, title:"Manage Clients", icon:<FaTools/>, path:'/sazin-construction/clients&partners/manage-clients'},
+    ]
+  },
+
+  { id: 3, title: "News", icon: <MdShoppingCart />, path: '/sazin-construction/add-news',
+       categories:[
+             { id: 1, title: "Add News", icon: <FaTools />, path: '/sazin-construction/news/add-news' },
+             { id: 2, title: "Manage News", icon: <FaTools />, path: '/sazin-construction/news/manage-news' },
+       ]
+   },
+  { id: 4, title: "Jobs", icon: <MdShoppingCart />, path: '/sazin-construction/post-job',
+     categories:[
+         {id:1, title:"Post Job", icon:<FaTools/>, path:'/sazin-construction/jobs/post-job'},
+         {id:2, title:"Manage Job", icon:<FaTools/>, path:'/sazin-construction/jobs/manage-job'},
+     ]
+   },
+  {
+    id:10 , title: 'Gallery', icon: <MdShoppingCart />, path: '/sazin-construction/gallery',
+    categories:[
+        {id:1, title:"Add Image", icon:<FaTools/>, path:'/sazin-construction/gallery/add-image'},
+        {id:2, title:"Manage Gallery", icon:<FaTools/>, path:'/sazin-construction/gallery/manage-gallery'},
+    ]
+  },
+  {
+    id:11, title: 'Equipment', icon: <MdShoppingCart />, path: '/sazin-construction/equipment',
+    categories:[
+        {id:1, title:"Add Equipment", icon:<FaTools/>, path:'/sazin-construction/equipment/add-equipment'},
+        {id:2, title:"Manage Equipment", icon:<FaTools/>, path:'/sazin-construction/equipment/manage-equipment'},
+    ]
+  },
+
+  {
+    id:13, title: 'Services', icon: <MdShoppingCart />, path: '/sazin-construction/services',
+    categories:[
+        {id:1, title:"Add Service", icon:<FaTools/>, path:'/sazin-construction/services/add-service'},
+        {id:2, title:"Manage Services", icon:<FaTools/>, path:'/sazin-construction/services/manage-services'},
+    ]
+  }
 ];
 
 function Sidebar() {
