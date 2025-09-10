@@ -52,13 +52,16 @@ function Navbar() {
 
         {/* Right side - Profile */}
         <div>
+         <Link prefetch={false} href="/" className='w-fit h-fit'>
+          {/* Profile Image */} 
           <Image
-            src="/path/to/profile.jpg"
+            src='https://gravatar.com/avatar/5abc513fc3232e3c780bd5545de495cb?s=400&d=mp&r=x'
             alt="Profile"
             width={40}
             height={40}
             className="rounded-full border-2 border-gray-200 cursor-pointer"
           />
+          </Link>
         </div>
       </div>
     </nav>

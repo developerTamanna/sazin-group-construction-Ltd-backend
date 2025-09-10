@@ -1,13 +1,10 @@
 import React from 'react'
-import SidebarWithHelmetsAndPPE from './components/Sidebar'
-import { DynamicColor } from '@/utils/DynamicColor'
+import ProtectedLayout from '@/utils/ProtectedLayout'
 function layout({children}) {
   return (
-    <main>
-      <SidebarWithHelmetsAndPPE />
-      <DynamicColor />
-      {children}
-    </main>
+      <ProtectedLayout>
+        {children}
+      </ProtectedLayout>
   )
 }
 

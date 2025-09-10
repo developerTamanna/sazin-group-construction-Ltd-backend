@@ -1,14 +1,10 @@
 import React from 'react'
-import Sidebar from './components/Sidebar'
-import { DynamicColor } from '@/utils/DynamicColor'
-
+import ProtectedLayout from '@/utils/ProtectedLayout'
 function layout({children}) {
   return (
-    <main>
-      <Sidebar />
-      <DynamicColor />
-      {children}
-    </main>
+      <ProtectedLayout>
+        {children}
+      </ProtectedLayout>
   )
 }
 

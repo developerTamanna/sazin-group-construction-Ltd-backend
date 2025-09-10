@@ -12,7 +12,7 @@ import {
   FaUser,
 } from 'react-icons/fa';
 
-const Login = () => {
+const Login = ({ onLogin }) => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
@@ -70,7 +70,7 @@ const Login = () => {
 
     // লগিন লজিক - সিমুলেট করা
     await new Promise((resolve) => setTimeout(resolve, 1500));
-
+    onLogin(loginData);
     console.log('Login data:', loginData);
     setIsLoading(false);
     // লগিন সফল হলে রিডাইরেক্ট বা অন্য কিছু করুন
@@ -285,6 +285,7 @@ const Login = () => {
                   <button
                     type="submit"
                     disabled={isLoading}
+                    onClick={handleSubmit}
                     className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all transform hover:scale-[1.02] disabled:opacity-75 disabled:cursor-not-allowed"
                   >
                     {isLoading ? (
