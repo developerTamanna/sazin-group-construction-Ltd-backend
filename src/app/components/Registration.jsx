@@ -1,7 +1,7 @@
 // components/ProfessionalRegisterForm.jsx
-'use client';
-import Link from 'next/link';
-import { useRef, useState } from 'react';
+"use client";
+import Link from "next/link";
+import { useRef, useState } from "react";
 import {
   FaCheck,
   FaEnvelope,
@@ -10,7 +10,7 @@ import {
   FaLock,
   FaUpload,
   FaUser,
-} from 'react-icons/fa';
+} from "react-icons/fa";
 
 const Registration = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -19,10 +19,10 @@ const Registration = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
 
   const fileInputRef = useRef(null);
@@ -37,7 +37,7 @@ const Registration = () => {
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    if (file && file.type.startsWith('image/')) {
+    if (file && file.type.startsWith("image/")) {
       const reader = new FileReader();
       reader.onload = (e) => {
         setProfileImage(e.target.result);
@@ -50,34 +50,24 @@ const Registration = () => {
     fileInputRef.current?.click();
   };
 
-  const removeImage = (e) => {
-    e.stopPropagation();
-    setProfileImage(null);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords don't match!");
       return;
     }
 
     setIsLoading(true);
-
-    // Registration logic - simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    console.log('Registration data:', { ...formData, profileImage });
+    console.log("Registration data:", { ...formData, profileImage });
     setIsLoading(false);
     setIsSubmitted(true);
   };
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center border border-gray-100">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm">
+        <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md text-center border border-gray-100">
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <FaCheck className="text-3xl text-green-600" />
           </div>
@@ -100,51 +90,53 @@ const Registration = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md border border-gray-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center md:p-4 p-2 bg-black bg-opacity-70 backdrop-blur-sm">
+      <div
+        className="relative overflow-auto h-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md border border-red-200 dark:border-red-900 p-6 sm:p-12 md:p-12"
+      >
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <div className="p-4 bg-red-50 rounded-full">
-              <FaUser className="text-3xl text-red-600" />
+            <div className="p-4 bg-red-100 dark:bg-red-900 rounded-full">
+              <FaUser className="text-3xl text-red-600 dark:text-red-400" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-gray-800">Create Account</h1>
-          <p className="text-gray-600 mt-2">Join Sazin Construction Ltd.</p>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+            Create Account
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-2">
+            Join Sazin Construction Ltd.
+          </p>
         </div>
 
         {/* Profile Image Upload */}
         <div className="mb-6 flex justify-center">
-          <div className="relative">
+          <div className="relative w-28 h-28">
             <div
-              className="w-24 h-24 rounded-full border-2 border-dashed border-gray-300 overflow-hidden bg-gray-50 flex items-center justify-center cursor-pointer transition-colors hover:border-red-400 hover:bg-red-50"
+              className="w-28 h-28 rounded-full border-3 border-red-300 bg-gray-50 flex flex-col items-center justify-center cursor-pointer overflow-hidden text-center"
               onClick={triggerFileInput}
             >
               {profileImage ? (
-                <>
-                  <img
-                    src={profileImage}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
-                  <div
-                    className="absolute inset-0 bg-black bg-opacity-40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center"
-                    onClick={removeImage}
-                  >
-                    <span className="text-white text-sm font-medium">
-                      Change
-                    </span>
-                  </div>
-                </>
+                <img
+                  src={profileImage}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
               ) : (
-                <div className="text-center">
-                  <FaUpload className="text-xl text-gray-400 mx-auto" />
-                  <span className="text-xs text-gray-500 mt-1 block">
-                    Upload Photo
-                  </span>
-                </div>
+                <>
+                  <FaUser className="text-4xl text-gray-400" />
+                  <p className="text-xs font-medium text-gray-500 mt-1 mb-2">Click to upload</p>
+                </>
               )}
             </div>
+
+            <div
+              onClick={triggerFileInput}
+              className="absolute bottom-0 right-0 bg-red-600 text-white p-2 rounded-full cursor-pointer shadow-lg"
+            >
+              <FaUpload className="w-4 h-4" />
+            </div>
+
             <input
               ref={fileInputRef}
               type="file"
@@ -157,10 +149,11 @@ const Registration = () => {
 
         {/* Registration Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Full Name */}
           <div>
             <label
               htmlFor="name"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
             >
               Full Name
             </label>
@@ -175,16 +168,17 @@ const Registration = () => {
                 required
                 value={formData.name}
                 onChange={handleInputChange}
-                className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors outline-none"
+                className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white outline-none"
                 placeholder="Enter your full name"
               />
             </div>
           </div>
 
+          {/* Email */}
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
             >
               Email Address
             </label>
@@ -199,16 +193,17 @@ const Registration = () => {
                 required
                 value={formData.email}
                 onChange={handleInputChange}
-                className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors outline-none"
+                className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white outline-none"
                 placeholder="Enter your email"
               />
             </div>
           </div>
 
+          {/* Password */}
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
             >
               Password
             </label>
@@ -219,11 +214,11 @@ const Registration = () => {
               <input
                 id="password"
                 name="password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 required
                 value={formData.password}
                 onChange={handleInputChange}
-                className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors outline-none"
+                className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white outline-none"
                 placeholder="Create a password"
               />
               <button
@@ -240,10 +235,11 @@ const Registration = () => {
             </div>
           </div>
 
+          {/* Confirm Password */}
           <div>
             <label
               htmlFor="confirmPassword"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
             >
               Confirm Password
             </label>
@@ -254,11 +250,11 @@ const Registration = () => {
               <input
                 id="confirmPassword"
                 name="confirmPassword"
-                type={showConfirmPassword ? 'text' : 'password'}
+                type={showConfirmPassword ? "text" : "password"}
                 required
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
-                className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors outline-none"
+                className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white outline-none"
                 placeholder="Confirm your password"
               />
               <button
@@ -275,34 +271,16 @@ const Registration = () => {
             </div>
           </div>
 
-          <div className="flex items-center">
-            <input
-              id="terms"
-              name="terms"
-              type="checkbox"
-              required
-              className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
-            />
-            <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
-              I agree to the{' '}
-              <a
-                href="#"
-                className="text-red-600 hover:text-red-700 font-medium"
-              >
-                Terms and Conditions
-              </a>
-            </label>
-          </div>
-
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center"
+            className="w-full flex justify-center items-center py-3 px-4 rounded-lg text-white bg-red-600 hover:bg-red-700 focus:ring-2 focus:ring-red-500 transition disabled:opacity-70"
           >
             {isLoading ? (
               <>
                 <svg
                   className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                 >
@@ -320,23 +298,23 @@ const Registration = () => {
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-                Creating Account...
+                Creating account...
               </>
             ) : (
-              'Create Account'
+              "Sign Up"
             )}
           </button>
         </form>
 
-        {/* Already have account */}
-        <div className="text-center mt-6 pt-6 border-t border-gray-200">
-          <p className="text-sm text-gray-600">
-            Already have an account?{' '}
+        {/* Sign in link */}
+        <div className="text-center mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            Already have an account?{" "}
             <Link
               href="/login"
-              className="font-medium text-red-600 hover:text-red-700 transition-colors"
+              className="font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
             >
-              Sign in here
+              Login here
             </Link>
           </p>
         </div>
