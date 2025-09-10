@@ -80,7 +80,7 @@ const Login = ({ onLogin }) => {
     <>
       {/* Centered Rotating Login Button */}
       {!isLoginOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-40">
+        <div className="fixed inset-0 top-0 bottom-0 flex items-center justify-center z-40">
           <button
             onClick={() => setIsLoginOpen(true)}
             className="flex flex-col items-center justify-center p-8 bg-gradient-to-br from-[#ef4444] to-[#dc2626] text-white rounded-full shadow-2xl transform hover:scale-110 transition-all duration-500 animate-rotate shadow-red-500/50"
@@ -116,15 +116,8 @@ const Login = ({ onLogin }) => {
 
       {/* Login Overlay */}
       {isLoginOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-70 backdrop-blur-sm">
-          <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-red-200 dark:border-red-900">
-            {/* Close Button */}
-            <button
-              onClick={() => setIsLoginOpen(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 z-10 transition-colors"
-            >
-              <FaTimes className="text-xl" />
-            </button>
+        <div className="fixed inset-0  z-50 flex items-center justify-center md:p-4 p-2  bg-black bg-opacity-70 backdrop-blur-sm">
+          <div className="relative overflow-auto h-full  bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md  border border-red-200 dark:border-red-900">
 
             {/* Animated Background Elements */}
             <div className="absolute -top-24 -left-24 w-48 h-48 bg-red-200 dark:bg-red-900 rounded-full opacity-20 animate-pulse"></div>
@@ -147,52 +140,7 @@ const Login = ({ onLogin }) => {
               </div>
 
               {/* Profile Image Upload */}
-              <div className="mb-6 flex justify-center">
-                <div className="relative">
-                  <div
-                    className="w-28 h-28 rounded-full border-4 border-red-200 dark:border-red-800 overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center cursor-pointer transition-all hover:border-red-300 dark:hover:border-red-700"
-                    onClick={triggerFileInput}
-                  >
-                    {profileImage ? (
-                      <img
-                        src={profileImage}
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="text-center">
-                        <FaUser className="text-4xl text-gray-400 mx-auto" />
-                        <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 block">
-                          Click to upload
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <input
-                    ref={fileInputRef}
-                    id="profile-upload"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageUpload}
-                  />
-                  {profileImage ? (
-                    <button
-                      onClick={removeImage}
-                      className="absolute top-0 right-0 bg-gray-600 text-white p-2 rounded-full text-xs hover:bg-gray-700 transition-colors"
-                    >
-                      <FaTimes />
-                    </button>
-                  ) : (
-                    <label
-                      htmlFor="profile-upload"
-                      className="absolute bottom-0 right-0 bg-red-600 text-white p-2 rounded-full cursor-pointer hover:bg-red-700 transition-colors"
-                    >
-                      <FaUpload className="text-sm" />
-                    </label>
-                  )}
-                </div>
-              </div>
+
 
               {/* Login Form */}
               <form onSubmit={handleSubmit} className="space-y-6">

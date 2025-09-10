@@ -40,10 +40,10 @@ const SidebarContext = createContext();
 
 const Sidebarlist={
   '/':[
-      { id: 1, title: "Manage Admin", icon: <MdDashboard />,path:'/helmet&safty-accessories' },
-      { id: 2, title: "Pending Admin", icon: <MdShoppingCart />,path:'/helmet&safty-accessories/add-product' },
-      { id: 3, title: "Assign Admin", icon: <MdInventory2 />,path:'/helmet&safty-accessories/all-products' },
-      { id: 4, title: "Profile", icon: <MdWorkspacePremium />,path:'/helmet&safty-accessories/featured-products' },  
+      { id: 1, title: "Manage Admin", icon: <MdDashboard />,path:'/manage-admin' },
+      { id: 2, title: "Pending Admin", icon: <MdShoppingCart />,path:'/pending-admin' },
+      { id: 3, title: "Assign Admin", icon: <MdInventory2 />,path:'/assign-admin' },
+      { id: 4, title: "Profile", icon: <MdWorkspacePremium />,path:'/profile' },  
   ],
   '/helmet&safty-accessories':[
       { id: 1, title: "Dashboard", icon: <MdDashboard />,path:'/helmet&safty-accessories' },

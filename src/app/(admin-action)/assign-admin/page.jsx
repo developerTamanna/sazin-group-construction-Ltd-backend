@@ -1,10 +1,10 @@
 import React from 'react';
-import Profile from '../components/Profile';
+import AssignAdmin from '../../components/AssignAdmin';
 
 const page = () => {
   return (
     <div>
-      <Profile></Profile>
+      <AssignAdmin></AssignAdmin>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import ManageAdmin from '../components/ManageAdmin';
+import ManageAdmin from '../../components/ManageAdmin';
 
 const page = () => {
   return (
