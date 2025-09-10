@@ -1,6 +1,6 @@
 'use client';
 import React from 'react'
-import { useSidebar } from '@/context/SidebarContext'; 
+import { useSidebar } from '@/context/SidebarContext';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
@@ -14,7 +14,7 @@ function Sidebar(){
     <aside className={`${dynamicTheme.bgColor} ${dynamicTheme.textColor} text-base rounded-bl-md h-full w-full overflow-auto py-4 pl-4`}>
       {/* 🔹 Logo Section */}
       <div className="flex items-center justify-center mb-6">
-        <Image 
+        <Image
           src="/logo.png"   // এখানে তোমার logo path দিতে হবে
           alt="Logo"
           width={140}
@@ -41,9 +41,9 @@ function Sidebar(){
                 {toggle === item.id && (
                   <ul className="ml-4 bg-transparent text-sm space-y-2">
                     {item.categories.map(category => (
-                      <Link 
-                        href={`${category.path}`} 
-                        key={category.id} 
+                      <Link
+                        href={`${category.path}`}
+                        key={category.id}
                         className={`flex items-center gap-2 p-2 ${pathName === `${category.path}` ? dynamicTheme?.sidebarActive : 'hover:border border-gray-300'} rounded-tl-md rounded-bl-md cursor-pointer`}
                       >
                         {category.icon}
@@ -54,8 +54,8 @@ function Sidebar(){
                 )}
               </div>
             ) : (
-              <Link 
-                href={`${item.path}`} 
+              <Link
+                href={`${item.path}`}
                 className={`flex items-center gap-2 p-2 ${pathName === `${item.path}` ? dynamicTheme?.sidebarActive : 'hover:border border-gray-300'} rounded-tl-md rounded-bl-md cursor-pointer`}
               >
                 {item.icon}
