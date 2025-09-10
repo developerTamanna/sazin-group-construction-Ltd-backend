@@ -266,7 +266,7 @@ const colorMap = {
       'border-2 border-blue-300 rounded-xl p-6 hover:shadow-lg transition',
   },
   '/': {
-    root: '/sazin-construction',
+    root: '/',
     bgColor: 'bg-blue-800',
     mainBg: 'bg-blue-100',
     textColor: 'text-gray-100',

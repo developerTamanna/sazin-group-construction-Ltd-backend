@@ -3,9 +3,7 @@ import Registration from '../../components/Registration';
 
 const page = () => {
   return (
-    <div>
-      <Registration></Registration>
-    </div>
+      <Registration />
   );
 };
 

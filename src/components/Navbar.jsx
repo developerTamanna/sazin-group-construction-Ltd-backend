@@ -36,6 +36,7 @@ function Navbar() {
                   <li key={item.title}>
                     <Link
                       href={item.link}
+                      prefetch={false}
                       className={`block rounded px-4 py-2 ${dynamicTheme?.hover} ${
                         dynamicTheme?.root === item.link ? dynamicTheme?.active :'' 
                       }`}
