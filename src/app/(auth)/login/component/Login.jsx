@@ -72,7 +72,7 @@ const Login = ({ onLogin }) => {
       {/* Login Modal */}
       {isLoginOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center md:p-4 p-2 bg-black bg-opacity-70 backdrop-blur-sm">
-          <div className="relative overflow-auto h-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md border border-red-200 dark:border-red-900">
+          <div className="relative overflow-auto h-full max-h-[620px] bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg border border-red-200 dark:border-red-900">
             <div className="relative z-10 p-8">
               {/* Header */}
               <div className="text-center mb-8">

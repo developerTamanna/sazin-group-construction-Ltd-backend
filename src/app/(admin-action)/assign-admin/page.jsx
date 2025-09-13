@@ -1,5 +1,5 @@
 import React from 'react';
-import AssignAdmin from '../../components/AssignAdmin';
+import AssignAdmin from '../component/AssignAdmin';
 
 const page = () => {
   return (

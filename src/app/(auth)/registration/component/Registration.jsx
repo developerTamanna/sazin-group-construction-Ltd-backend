@@ -64,10 +64,10 @@ const Registration = () => {
     setIsSubmitted(true);
   };
 
-  if (isSubmitted) {
+  if (!isSubmitted) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm">
-        <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md text-center border border-gray-100">
+        <div className="relative bg-white flex flex-col justify-center items-center overflow-auto h-full max-h-[520px] rounded-xl shadow-lg md:p-8 p-4 w-full max-w-lg text-center border border-gray-100">
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <FaCheck className="text-3xl text-green-600" />
           </div>
@@ -92,7 +92,7 @@ const Registration = () => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center md:p-4 p-2 bg-black bg-opacity-70 backdrop-blur-sm">
       <div
-        className="relative overflow-auto h-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md border border-red-200 dark:border-red-900 p-6 sm:p-12 md:p-12"
+        className="relative overflow-auto h-full max-h-[620px] bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg  border border-red-200 dark:border-red-900 p-6 sm:p-12 md:p-12"
       >
         {/* Header */}
         <div className="text-center mb-8">
