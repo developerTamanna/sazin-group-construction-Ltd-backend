@@ -24,7 +24,7 @@ export default function ProtectedLayout({ children }) {
 
   if (!user) return null; // redirect er age empty render
 
-  return( <>              <div className="h-[100vh] overflow-auto flex items-start justify-center">
+  return( <>  <div className="h-[100vh] overflow-auto flex items-start justify-center">
                 <div className="h-[100vh] w-full overflow-auto flex items-start justify-center">
                   {/* Sidebar সবসময় থাকবে */}
                     <div className="w-[20%] min-w-[280px] h-full shadow-lg">
