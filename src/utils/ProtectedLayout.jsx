@@ -27,7 +27,7 @@ export default function ProtectedLayout({ children }) {
   return( <>  <div className="h-[100vh] overflow-auto flex items-start justify-center">
                 <div className="h-[100vh] w-full overflow-auto flex items-start justify-center">
                   {/* Sidebar সবসময় থাকবে */}
-                    <div className="w-[20%] min-w-[280px] h-full shadow-lg">
+                    <div className="md:w-[20%] md:min-w-[280px] h-full shadow-lg w-0">
 
                       <SidebarWrapper />
                     </div>
