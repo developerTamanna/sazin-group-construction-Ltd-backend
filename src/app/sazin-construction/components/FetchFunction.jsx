@@ -1,7 +1,7 @@
 // api.js
 import axiosInstance from "@/utils/axios";
 
-export const fetchProducts = async (pageParam = 1, value = "", ky = "") => {
+export const fetchProducts = async (pageParam = 1, value = "", ky = "",isFeature='') => {
   const limit = 10;
 
   // query params build
@@ -12,6 +12,9 @@ export const fetchProducts = async (pageParam = 1, value = "", ky = "") => {
 
   if (value && ky) {
     params.append(ky, value);
+  }
+  if(isFeature){
+    params.append("isFeature",true);
   }
 
   // API call (axios auto json parse kore)

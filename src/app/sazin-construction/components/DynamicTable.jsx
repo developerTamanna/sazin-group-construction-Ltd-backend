@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import { FiSearch } from "react-icons/fi";
 
-export default function DynamicTable({value,ky,th}){
+export default function DynamicTable({value,ky,th,isFeature}){
   const { dynamicTheme } = useSidebar();
   const {
     data,
@@ -17,16 +17,16 @@ export default function DynamicTable({value,ky,th}){
     status,
     refetch
   } = useInfiniteQuery({
-    queryKey: ["project",value,ky],
-    queryFn: ({ pageParam = 1 }) => fetchProducts(pageParam,value,ky ),
+    queryKey: ["project",value,ky,isFeature],
+    queryFn: ({ pageParam = 1 }) => fetchProducts(pageParam,value,ky,isFeature ),
     getNextPageParam: (lastPage) => lastPage.nextPage,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    catchTimeout: 10 * 1000, // 10 seconds
+    cacheTime: 10 * 1000, // 10 seconds
     refetchOnWindowFocus: false,
   });
   useEffect(() => {
     refetch();
-  }, [value, refetch, ky]);
+  }, [value, refetch, ky,isFeature]);
   useEffect(()=>{
       console.log("st",status);
       
@@ -89,7 +89,7 @@ export default function DynamicTable({value,ky,th}){
       <div className="overflow-x-auto">
         <table className="w-full border border-gray-200 rounded-lg overflow-hidden">
           <thead className="bg-gray-100">
-            <tr className="text-left">
+            <tr className="text-center">
               {th?.map(((t,i)=><th key={i} className="p-3">{t}</th>))}
               <th className="p-3 text-center">Actions</th>
             </tr>
@@ -100,7 +100,7 @@ export default function DynamicTable({value,ky,th}){
                 {page?.data?.map((item, index) => (
                   <tr
                     key={index}
-                    className="border-b border-gray-200  transition even:bg-gray-50 odd:bg-white"
+                    className="border-b border-gray-200 transition even:bg-gray-400 odd:bg-white"
                   >
                     <td className="p-3 relative w-20 h-14">
                       <Image
@@ -113,11 +113,11 @@ export default function DynamicTable({value,ky,th}){
                         className="rounded-md object-cover"
                       />
                     </td>
-                    <td className={`p-3 font-semi-bold`}>
+                    <td className={`p-3 font-semi-bold text-center`}>
                       {item?.title}
                     </td>
-                    <td className="p-3">{item?.productName}</td>
-                    <td className="p-3 font-medium text-gray-700">{item?.price}</td>
+                    <td className="p-3 text-center">{item?.category}</td>
+                    <td className="p-3 font-medium text-gray-700 text-center">{item?.feature?'Yes':"No"}</td>
                     <td className="p-3 flex items-center justify-center gap-3">
                       <button
                         className="p-2 rounded-full hover:bg-blue-100 text-blue-600"
