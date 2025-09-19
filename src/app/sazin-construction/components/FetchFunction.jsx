@@ -1,16 +1,37 @@
 // api.js
-import { productsData } from "../../../data";
+import axiosInstance from "@/utils/axios";
 
-export const fetchProducts = async (pageParam = 1, value='',ky='') => {
-  if(value ==='' || ky === '') return { data: [], nextPage: undefined };
-  const limit = 4; // প্রতি পেজে ৪টা প্রোডাক্ট
-  const start = (pageParam - 1) * limit;
-  const end = start + limit;
-  const filteredProducts = value!='all' ? productsData.filter(product => product[ky] === value) : productsData;
-  const pageData = filteredProducts.slice(start, end);
+export const fetchProducts = async (pageParam = 1, value = "", ky = "") => {
+  const limit = 10;
+
+  // query params build
+  const params = new URLSearchParams({
+    page: pageParam,
+    limit,
+  });
+
+  if (value && ky) {
+    params.append(ky, value);
+  }
+
+  // API call (axios auto json parse kore)
+  const res = await axiosInstance.get(
+    `/sazin-construction/manageAction/getAction/project?${params.toString()}`
+  );
+
+  const json = res.data; // ✅ ekhane data ashbe
+
+  console.log("fjhfj", json);
+
+  if (!json.success) {
+    throw new Error(json.message || "Failed to fetch products");
+  }
 
   return {
-    data: pageData,
-    nextPage: end < filteredProducts.length ? pageParam + 1 : undefined,
+    data: json.data,
+    nextPage:
+      json.pagination.page < json.pagination.totalPages
+        ? pageParam + 1
+        : undefined,
   };
 };

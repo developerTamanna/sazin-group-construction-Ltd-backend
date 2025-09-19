@@ -26,8 +26,11 @@ export default function DynamicTable({value,ky,th}){
   });
   useEffect(() => {
     refetch();
-    console.log("Refetching data...", { value, ky });
   }, [value, refetch, ky]);
+  useEffect(()=>{
+      console.log("st",status);
+      
+  },[status])
 
   const loadMoreRef = useRef();
 
@@ -50,8 +53,8 @@ export default function DynamicTable({value,ky,th}){
     return () => observer.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  if (status === "loading") return <p>Loading...</p>;
-  if (status === "error") return <p>Error fetching products!</p>;
+  if (status === "pending") return <p className="text-center">Loading...</p>;
+  if (status === "error") return <p className="text-center">Error fetching products!</p>;
 
   return (
       <>
@@ -87,7 +90,7 @@ export default function DynamicTable({value,ky,th}){
         <table className="w-full border border-gray-200 rounded-lg overflow-hidden">
           <thead className="bg-gray-100">
             <tr className="text-left">
-              {th?.map((t=><th className="p-3">{t}</th>))}
+              {th?.map(((t,i)=><th key={i} className="p-3">{t}</th>))}
               <th className="p-3 text-center">Actions</th>
             </tr>
           </thead>
@@ -99,12 +102,14 @@ export default function DynamicTable({value,ky,th}){
                     key={index}
                     className="border-b border-gray-200  transition even:bg-gray-50 odd:bg-white"
                   >
-                    <td className="p-3">
+                    <td className="p-3 relative w-20 h-14">
                       <Image
-                        src={item?.image}
+                        src={item?.imageUrl}
                         alt={item?.title}
-                        width={80}
-                        height={60}
+                        sizes="80px"
+                        fill
+                        loading="lazy"
+                        priority={false}
                         className="rounded-md object-cover"
                       />
                     </td>
