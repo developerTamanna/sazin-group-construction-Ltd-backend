@@ -1,6 +1,6 @@
 // app/profile/page.jsx
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   FaBuilding,
@@ -8,12 +8,12 @@ import {
   FaCamera,
   FaEdit,
   FaEnvelope,
-  FaGlobe,
   FaLinkedin,
   FaLock,
   FaMapMarkerAlt,
   FaPhone,
   FaSave,
+  FaSpinner,
   FaTimes,
   FaTwitter,
   FaUser,
@@ -29,38 +29,70 @@ import {
   PasswordValidationCheck,
   DateValidationCheck
  } from '@/utils/custom-validation/CustomValidation';
-const Profile = () => {
+import { useSidebar } from '@/context/SidebarContext';
+import toast from 'react-hot-toast';
+const Profile = ({onUpdate}) => {
+  const { user, loading } = useSidebar();
   const [isEditing, setIsEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [profileImage, setProfileImage] = useState('/api/placeholder/120/120');
-  const [coverImage, setCoverImage] = useState('/api/placeholder/800/200');
-
   // React Hook Form setup
   const { register, handleSubmit, reset, watch, formState: { errors, isSubmitting, isValid } } = useForm({
     mode: 'onChange',
     criteriaMode: 'all',
     defaultValues: {
-      name: 'Ahsan Habib',
-      email: 'ahsan@sazin.com',
-      phone: '+8801712345678',
-      position: 'Senior Project Manager',
-      department: 'Project Management',
-      company: 'Sazin Construction Ltd.',
-      location: 'Dhaka, Bangladesh',
-      joinDate: '2022-01-15',
-      bio: 'A skilled project manager with over 10 years of experience. Worked on major projects including Rooppur Nuclear Power Plant and Padma Bridge.',
-      website: 'https://ahsan-portfolio.com',
-      linkedin: 'https://linkedin.com/in/ahsan',
-      twitter: 'https://twitter.com/ahsan',
+      name: user?.username,
+      email: user?.email,
+      phone: user?.phone || "+880",
+      position: user?.position || "Project Manager",
+      department: user?.department || "Project Management",
+      company: user?.company || "Sazin Construction Ltd.",
+      location: user?.location || 'Dhaka, Bangladesh',
+      joinDate: user?.joinDate || '2022-01-15',
+      bio: user?.bio || 'A skilled project manager with over 10 years of experience. Worked on major projects including Rooppur Nuclear Power Plant and Padma Bridge.',
+      website: user?.website || 'https://ahsan-portfolio.com',
+      linkedin: user?.linkedin || 'https://linkedin.com/in/ahsan',
+      twitter: user?.twitter || 'https://twitter.com/ahsan',
     },
   });
 
   const formData = watch(); // live values
 
-  const handleSave = (data) => {
-    setIsEditing(false);
-    console.log('Profile saved:', data);
-    alert('Profile updated successfully!');
-  };
+  const handleSave = async(data) => {
+    try {
+      setSaving(true);
+      console.log('Profile saved:', data);
+      const res = await onUpdate(formData);
+      toast.success(res?.data?.message); // success toast
+      setSaving(false);
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Submit error:", error);
+      const message = error?.response?.data?.message || "request failed";
+      if (!message) return;
+
+      if (typeof message === "string") {
+                    toast.error(message); // সরাসরি string
+                  } else if (Array.isArray(message)) {
+                    // যদি array হয়
+                    message.forEach((msg) => toast.error(msg));
+                  } else if (typeof message === "object") {
+                    // object হলে loop করে সব key এর value দেখাবে
+                    Object.values(message).forEach((val) => {
+                      if (Array.isArray(val)) {
+                        val.forEach((msg) => toast.error(msg));
+                      } else {
+                        toast.error(val);
+                      }
+                    });
+                  }
+    }finally{
+      setSaving(false);
+      setIsEditing(false);
+      reset(); // reset form
+    }
+  };  
+
 
   const handleCancel = () => {
     setIsEditing(false);
@@ -85,6 +117,18 @@ const Profile = () => {
     { label: 'Team Members', value: '15' },
   ];
 
+  useEffect(() => {
+    if (user) {
+      setProfileImage(user?.photoURL || '/api/placeholder/120/120');
+    }
+  }, [user, loading]);
+  
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+  if (!user) {
+    return <div className="min-h-screen flex items-center justify-center">No user data available.</div>;
+  }
   return (
     <div className="min-h-screen bg-gray-50 pb-12 ">
       {/* Cover Image */}
@@ -100,7 +144,7 @@ const Profile = () => {
                 layout="fill"
               />
             </div>
-            {isEditing && (
+            {(isEditing && !saving) && (
               <label className="absolute bottom-2 right-2 bg-red-600 text-white p-2 rounded-full cursor-pointer hover:bg-red-700 transition-colors">
                 <FaCamera className="text-sm" />
                 <input
@@ -135,26 +179,27 @@ const Profile = () => {
               <>
                 <button
                   type='submit'
-                  className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                  disabled={saving}
+                  className={`  bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors ${saving ? ' cursor-not-allowed' : ''}`}
                 >
-                  <FaSave /> Save
+                  {saving ? <FaSpinner className="animate-spin" /> :<FaSave /> } Save
                 </button>
                 <button
                   type="button"
+                  disabled={saving}
                   onClick={handleCancel}
-                  className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                  className={`bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <FaTimes /> Cancel
                 </button>
               </>
             ) : (
-              <button
-                type="button"
+              <div
                 onClick={() => setIsEditing(true)}
                 className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
               >
                 <FaEdit /> Edit Profile
-              </button>
+              </div>
             )}
           </div>
         </div>
@@ -174,7 +219,7 @@ const Profile = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <FaUser className="inline mr-2 text-gray-400" /> Full Name
                     </label>
-                    {isEditing ? (
+                    {(isEditing && !saving) ? (
                       <div className="relative">
                         <input
                           type="text"
@@ -198,7 +243,7 @@ const Profile = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <FaEnvelope className="inline mr-2 text-gray-400" /> Email
                     </label>
-                    {isEditing ? (
+                    {(isEditing && !saving)? (
                       <div className="relative">
                         <input
                           type="email"
@@ -221,7 +266,7 @@ const Profile = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <FaPhone className="inline mr-2 text-gray-400" /> Phone
                     </label>
-                    {isEditing ? (
+                    {(isEditing && !saving)? (
                       <div className="relative">
                         <input
                           type="tel"
@@ -245,7 +290,7 @@ const Profile = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <FaMapMarkerAlt className="inline mr-2 text-gray-400" /> Location
                     </label>
-                    {isEditing ? (
+                    {(isEditing && !saving) ? (
                       <div className="relative">
                         <input
                           type="text"
@@ -268,7 +313,7 @@ const Profile = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <FaUserTie className="inline mr-2 text-gray-400" /> Position
                     </label>
-                    {isEditing ? (
+                    {(isEditing && !saving) ? (
                       <div className="relative">
                         <input
                           type="text"
@@ -292,7 +337,7 @@ const Profile = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <FaBuilding className="inline mr-2 text-gray-400" /> Department
                     </label>
-                    {isEditing ? (
+                    {(isEditing && !saving) ? (
                       <div className="relative">
                         <input
                           type="text"
@@ -316,7 +361,7 @@ const Profile = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Bio
                   </label>
-                  {isEditing ? (
+                  {(isEditing && !saving)? (
                     <div className="relative">
                       <textarea
                         {...register('bio',{required:'Bio is required',...DangerousContentCheck})}
@@ -365,7 +410,7 @@ const Profile = () => {
                     <FaBuilding className="text-gray-400" />
                     <span className="text-gray-700">{formData.company}</span>
                   </div>
-                { !isEditing ?(<div className="flex items-center gap-3">
+                { (!isEditing || saving) ?(<div className="flex items-center gap-3">
                     <FaCalendarAlt className="text-gray-400" />
                     <span className="text-gray-700">Joined: {formData.joinDate}</span>
                   </div>):(<div className="flex items-center gap-3">
@@ -394,7 +439,7 @@ const Profile = () => {
                   Social Media
                 </h2>
                 <div className="space-y-3">
-                  {isEditing ? (
+                  {(isEditing && !saving)? (
                     <>
                       <div className="flex  items-center gap-3">
                        <label htmlFor="linkedin">

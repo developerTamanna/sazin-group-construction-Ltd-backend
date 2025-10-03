@@ -28,7 +28,7 @@ export const DangerousContentCheck = {
     return await new Promise((resolve) =>
       setTimeout(() => {
         const dangerousPatterns = [
-          /[`'"<>]/,          // backtick
+          /[`"<>]/,          // backtick
           /<script>/i,    // script tags
           /<\/?\w+>/,     // any HTML tag
           /on\w+=/,       // inline JS events like onclick=

@@ -1,99 +1,106 @@
-// components/ProfessionalRegisterForm.jsx
+// components/Registration.jsx
 "use client";
+import { useState, useRef } from "react";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import toast from "react-hot-toast";
 import {
-  FaCheck,
+  FaUser,
   FaEnvelope,
+  FaLock,
   FaEye,
   FaEyeSlash,
-  FaLock,
   FaUpload,
-  FaUser,
 } from "react-icons/fa";
+import { useForm } from "react-hook-form";
+import {
+  EmailValidationCheck,
+  PasswordValidationCheck,
+  StringValidationCheck,
+} from "@/utils/custom-validation/CustomValidation";
+import { useRouter } from "next/navigation";
 
-const Registration = () => {
+const Registration = ({ onRegister }) => {
+  const router = useRouter();
+  const [profileImage, setProfileImage] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [profileImage, setProfileImage] = useState(null);
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-
   const fileInputRef = useRef(null);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setProfileImage(e.target.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+    reset,
+  } = useForm({
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+    mode: "onChange",
+    shouldUnregister: true,
+    criteriaMode: "all",
+  });
 
   const triggerFileInput = () => {
     fileInputRef.current?.click();
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match!");
-      return;
+  const handleImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result);
+        setImageFile(file);
+      };
+      reader.readAsDataURL(file);
     }
-
-    setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    console.log("Registration data:", { ...formData, profileImage });
-    setIsLoading(false);
-    setIsSubmitted(true);
   };
 
-  if (!isSubmitted) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm">
-        <div className="relative bg-white flex flex-col justify-center items-center overflow-auto h-full max-h-[520px] rounded-xl shadow-lg md:p-8 p-4 w-full max-w-lg text-center border border-gray-100">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <FaCheck className="text-3xl text-green-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            Registration Successful!
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Your account has been created successfully. You can now login to
-            your account.
-          </p>
-          <Link
-            href="/login"
-            className="inline-block bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
-          >
-            Go to Login
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  const onSubmit = async (data) => {
+    try {
+      setIsLoading(true);
+      const formData = { ...data, image: imageFile };
+      const res = await onRegister(formData);
+      toast.success(res?.data?.message); // success toast
+       setIsLoading(false);
+       reset(); 
+       setProfileImage(null);
+       setImageFile(null);
+       router.push("/login"); // redirect
+    } catch (error) {
+      console.error("Submit error:", error);
+      const message = error?.response?.data?.message;
+      if (!message) return;
+
+      if (typeof message === "string") {
+                    toast.error(message); // সরাসরি string
+                  } else if (Array.isArray(message)) {
+                    // যদি array হয়
+                    message.forEach((msg) => toast.error(msg));
+                  } else if (typeof message === "object") {
+                    // object হলে loop করে সব key এর value দেখাবে
+                    Object.values(message).forEach((val) => {
+                      if (Array.isArray(val)) {
+                        val.forEach((msg) => toast.error(msg));
+                      } else {
+                        toast.error(val);
+                      }
+                    });
+                  }
+      } finally {
+        setIsLoading(false); // ✅ backend থেকে response এলেই বন্ধ হবে
+      }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center md:p-4 p-2 bg-black bg-opacity-70 backdrop-blur-sm">
-      <div
-        className="relative overflow-auto h-full max-h-[620px] bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg  border border-red-200 dark:border-red-900 p-6 sm:p-12 md:p-12"
-      >
+      <div className="relative overflow-auto h-full max-h-[620px] bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg border border-red-200 dark:border-red-900 p-6 sm:p-12 md:p-12">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
@@ -125,7 +132,9 @@ const Registration = () => {
               ) : (
                 <>
                   <FaUser className="text-4xl text-gray-400" />
-                  <p className="text-xs font-medium text-gray-500 mt-1 mb-2">Click to upload</p>
+                  <p className="text-xs font-medium text-gray-500 mt-1 mb-2">
+                    Click to upload
+                  </p>
                 </>
               )}
             </div>
@@ -148,7 +157,7 @@ const Registration = () => {
         </div>
 
         {/* Registration Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Full Name */}
           <div>
             <label
@@ -163,15 +172,15 @@ const Registration = () => {
               </div>
               <input
                 id="name"
-                name="name"
                 type="text"
-                required
-                value={formData.name}
-                onChange={handleInputChange}
-                className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white outline-none"
                 placeholder="Enter your full name"
+                className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white outline-none"
+                {...register("name", { required: "Full name is required",...StringValidationCheck })}
               />
             </div>
+            {errors.name && (
+              <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+            )}
           </div>
 
           {/* Email */}
@@ -188,15 +197,18 @@ const Registration = () => {
               </div>
               <input
                 id="email"
-                name="email"
                 type="email"
-                required
-                value={formData.email}
-                onChange={handleInputChange}
-                className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white outline-none"
                 placeholder="Enter your email"
+                className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white outline-none"
+                {...register("email", {
+                  required: "Email is required",
+                  ...EmailValidationCheck,
+                })}
               />
             </div>
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+            )}
           </div>
 
           {/* Password */}
@@ -213,13 +225,13 @@ const Registration = () => {
               </div>
               <input
                 id="password"
-                name="password"
                 type={showPassword ? "text" : "password"}
-                required
-                value={formData.password}
-                onChange={handleInputChange}
-                className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white outline-none"
                 placeholder="Create a password"
+                className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white outline-none"
+                {...register("password", {
+                  required: "Password is required",
+                  ...PasswordValidationCheck,
+                })}
               />
               <button
                 type="button"
@@ -233,6 +245,11 @@ const Registration = () => {
                 )}
               </button>
             </div>
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.password.message}
+              </p>
+            )}
           </div>
 
           {/* Confirm Password */}
@@ -249,18 +266,22 @@ const Registration = () => {
               </div>
               <input
                 id="confirmPassword"
-                name="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
-                required
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white outline-none"
                 placeholder="Confirm your password"
+                className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white outline-none"
+                {...register("confirmPassword", {
+                  required: "Confirm password is required",
+                  ...PasswordValidationCheck,
+                  validate: (val) =>
+                    val === watch("password") || "Passwords do not match",
+                })}
               />
               <button
                 type="button"
                 className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                onClick={() =>
+                  setShowConfirmPassword(!showConfirmPassword)
+                }
               >
                 {showConfirmPassword ? (
                   <FaEyeSlash className="h-4 w-4 text-gray-400 hover:text-red-500 transition-colors" />
@@ -269,6 +290,11 @@ const Registration = () => {
                 )}
               </button>
             </div>
+            {errors.confirmPassword && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.confirmPassword.message}
+              </p>
+            )}
           </div>
 
           <button

@@ -2,7 +2,8 @@
 import { usePathname } from "next/navigation";
 
 import { createContext, useContext, useEffect, useState } from "react";
-
+import localforage from "localforage";
+import CryptoJS from "crypto-js";
 
 // FontAwesome icons
 import {
@@ -285,23 +286,35 @@ const colorMap = {
   },
 };
 
+  const decryptData =(ciphertext) => {
+    const bytes = CryptoJS.AES.decrypt(ciphertext,process.env.NEXT_PUBLIC_SECRET_KEY);
+    return bytes.toString(CryptoJS.enc.Utf8);
+  };
 
-const getCookie = (name) => {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
-  return match ? decodeURIComponent(match[2]) : null;
+const getUser = async () => {
+  const data = await localforage.getItem("user");
+  if (!data) return null;
+  if (Date.now() > data.expiryTime) {
+    // Expired হলে মুছে ফেলবে
+    await localforage.removeItem("user");
+    return null;
+  }
+
+  return data;
 };
 
-const setCookie = (name, value, days = 7) => {
-  if (typeof document === "undefined") return;
-  const expires = new Date();
-  expires.setDate(expires.getDate() + days);
-  document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/`;
+const addUser = async (user) => {
+   if(!user || !user.uid) return;
+   user.email=decryptData(user?.email);
+   user.username=decryptData(user?.username);
+    // expire time (7 days = 7*24*60*60*1000 ms)
+   user.expiryTime = Date.now() + (7 * 24 * 60 * 60 * 1000);
+  const res= await localforage.setItem('user', user);
+  return res;
 };
 
-const removeCookie = (name) => {
-  if (typeof document === "undefined") return;
-  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/`;
+const removeUser = async () => {
+  await localforage.removeItem('user');
 };
 
 
@@ -312,21 +325,28 @@ export function SidebarProvider({ children }) {
   const [loading, setLoading] = useState(true); // loader state
 
   useEffect(() => {
-    const token = getCookie("token");
-    if (token) {
-      setUser({ token });
-    }
-    setLoading(false); // cookie check complete
+      (async () => {
+        const user = await getUser();
+        if (user) {
+          setUser(user);   // এখানে object wrap না করে সরাসরি দিচ্ছি
+        } else {
+          setUser(false);
+        }
+        setLoading(false); // cookie check complete
+      })();
   }, []);
 
-  const login = (token) => {
-    setCookie("token", token, 7);
-    setUser({ token });
+  const login = async (user) => {
+   const res = await addUser(user);
+    if(!res){ setUser(null);setLoading(false); return};
+    setUser(user);
+    setLoading(false); // cookie check complete
   };
 
-  const logout = () => {
-    removeCookie("token");
+  const logout = async() => {
+    await removeUser();
     setUser(null);
+    setLoading(false); // cookie check complete
   };
   const [items, setItems] = useState([]); // default empty sidebar
   const [dynamicTheme, setDynamicTheme] = useState({ bgColor: '', textColor: '' });

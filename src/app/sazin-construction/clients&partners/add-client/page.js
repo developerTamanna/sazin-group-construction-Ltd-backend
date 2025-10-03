@@ -4,7 +4,8 @@ import DynamicForm from '@/components/DynamicForm';
 import axiosInstance from '@/utils/axios';
 import { DangerousContentCheck } from '@/utils/custom-validation/CustomValidation';
 const fields = [
-  { name: "partner", placeholder: "Enter partner and client", label: "Partner And Client ", type: "text", rules: { required: "Partner And Client is required", ...DangerousContentCheck } },
+  { name:"partner", placeholder: "Enter partner and client", label: "Partner And Client ", type: "text", rules: { required: "Partner And Client is required", ...DangerousContentCheck } },
+  { name:"description",placeholder: "Description", label: "description ", type: "textarea", rules: { required: "description is required", ...DangerousContentCheck } }
 ];
 
 const onSubmit= async(data) => {

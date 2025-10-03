@@ -1,7 +1,7 @@
 // components/AdminLogin.jsx
 'use client';
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   FaEye,
   FaEyeSlash,
@@ -10,43 +10,72 @@ import {
   FaSignInAlt,
   FaUser,
 } from 'react-icons/fa';
+import { useForm } from 'react-hook-form';
+import { EmailValidationCheck, PasswordValidationCheck } from '@/utils/custom-validation/CustomValidation';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 const Login = ({ onLogin }) => {
+  const router = useRouter();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [loginData, setLoginData] = useState({
-    username: '',
-    password: '',
-  });
   const [isLoading, setIsLoading] = useState(false);
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm({
+    defaultValues: {
+      username: '',
+      password: '',
+    },
+    mode:"onChange",
+    shouldUnregister:true,
+    criteriaMode:"all"
+  });
+
   useEffect(() => {
-    if (isLoginOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
+    document.body.style.overflow = isLoginOpen ? 'hidden' : 'unset';
     return () => {
       document.body.style.overflow = 'unset';
     };
   }, [isLoginOpen]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setLoginData({
-      ...loginData,
-      [name]: value,
-    });
-  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
 
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    onLogin(loginData);
-    console.log('Login data:', loginData);
-    setIsLoading(false);
+  const onSubmit = async (data) => {
+    try{
+        setIsLoading(true); // 🚀 submitting শুরু
+        const res=await onLogin(data);
+          toast.success(res?.data?.message); // success toast
+          setIsLoading(false);
+           reset();
+           router.push("/profile");
+       } catch (error) {
+      console.error("Submit error:", error);
+      const message = error?.response?.data?.message;
+      if (!message) return;
+
+      if (typeof message === "string") {
+                    toast.error(message); // সরাসরি string
+                  } else if (Array.isArray(message)) {
+                    // যদি array হয়
+                    message.forEach((msg) => toast.error(msg));
+                  } else if (typeof message === "object") {
+                    // object হলে loop করে সব key এর value দেখাবে
+                    Object.values(message).forEach((val) => {
+                      if (Array.isArray(val)) {
+                        val.forEach((msg) => toast.error(msg));
+                      } else {
+                        toast.error(val);
+                      }
+                    });
+                  }
+      } finally {
+        setIsLoading(false); // ✅ backend থেকে response এলেই বন্ধ হবে
+      }
   };
 
   return (
@@ -90,29 +119,29 @@ const Login = ({ onLogin }) => {
               </div>
 
               {/* Login Form */}
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div>
                   <label
                     htmlFor="username"
                     className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                   >
-                    Username
+                    Email
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <FaUser className="h-5 w-5 text-gray-400" />
                     </div>
                     <input
-                      id="username"
-                      name="username"
-                      type="text"
-                      required
-                      value={loginData.username}
-                      onChange={handleInputChange}
+                      id="Email"
+                      type="email"
+                      placeholder="Enter your email"
                       className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white outline-none"
-                      placeholder="Enter your username"
+                      {...register('email', { required: 'Email is required', ...EmailValidationCheck })}
                     />
                   </div>
+                  {errors.email && (
+                    <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                  )}
                 </div>
 
                 <div>
@@ -128,13 +157,10 @@ const Login = ({ onLogin }) => {
                     </div>
                     <input
                       id="password"
-                      name="password"
                       type={showPassword ? 'text' : 'password'}
-                      required
-                      value={loginData.password}
-                      onChange={handleInputChange}
-                      className="block w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white outline-none"
                       placeholder="Enter your password"
+                      className="block w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white outline-none"
+                      {...register('password', { required: 'Password is required',...PasswordValidationCheck })}
                     />
                     <button
                       type="button"
@@ -148,15 +174,18 @@ const Login = ({ onLogin }) => {
                       )}
                     </button>
                   </div>
+                  {errors.password && (
+                    <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <input
                       id="remember-me"
-                      name="remember-me"
                       type="checkbox"
                       className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+                      {...register('rememberMe')}
                     />
                     <label
                       htmlFor="remember-me"
@@ -208,7 +237,6 @@ const Login = ({ onLogin }) => {
                 </button>
               </form>
 
-             
               <div className="text-center mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <p className="text-sm text-gray-600 dark:text-gray-300">
                   Are you new?{' '}
