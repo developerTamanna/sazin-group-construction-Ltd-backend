@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 import localforage from "localforage";
 import CryptoJS from "crypto-js";
+import {setUserInterceptor} from '@/utils/axios';
 
 // FontAwesome icons
 import {
@@ -37,6 +38,7 @@ import {
   MdCategory
 } from "react-icons/md";
 import { RiShieldStarFill } from "react-icons/ri";
+import { setUserInterceptor } from "@/utils/axios";
 const SidebarContext = createContext();
 
 const Sidebarlist={
@@ -304,7 +306,7 @@ const getUser = async () => {
 };
 
 const addUser = async (user) => {
-   if(!user || !user.uid) return;
+   if(!user || !user.uid) return null;
    user.email=decryptData(user?.email);
    user.username=decryptData(user?.username);
     // expire time (7 days = 7*24*60*60*1000 ms)
@@ -326,10 +328,13 @@ export function SidebarProvider({ children }) {
 
   useEffect(() => {
       (async () => {
+        setLoading(true); // start loading
         const user = await getUser();
         if (user) {
+          await setUserInterceptor(user); // axios interceptor update
           setUser(user);   // এখানে object wrap না করে সরাসরি দিচ্ছি
         } else {
+          await setUserInterceptor(null); // axios interceptor update
           setUser(false);
         }
         setLoading(false); // cookie check complete
@@ -337,13 +342,17 @@ export function SidebarProvider({ children }) {
   }, []);
 
   const login = async (user) => {
-   const res = await addUser(user);
+    setLoading(true); // start loading
+    await setUserInterceptor(user); // axios interceptor update
+    const res = await addUser(user);
     if(!res){ setUser(null);setLoading(false); return};
     setUser(user);
     setLoading(false); // cookie check complete
   };
 
   const logout = async() => {
+    setLoading(true); // start loading
+    await setUserInterceptor(null); // axios interceptor update
     await removeUser();
     setUser(null);
     setLoading(false); // cookie check complete

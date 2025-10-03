@@ -50,7 +50,6 @@ const Profile = ({onUpdate}) => {
       location: user?.location || 'Dhaka, Bangladesh',
       joinDate: user?.joinDate || '2022-01-15',
       bio: user?.bio || 'A skilled project manager with over 10 years of experience. Worked on major projects including Rooppur Nuclear Power Plant and Padma Bridge.',
-      website: user?.website || 'https://ahsan-portfolio.com',
       linkedin: user?.linkedin || 'https://linkedin.com/in/ahsan',
       twitter: user?.twitter || 'https://twitter.com/ahsan',
     },

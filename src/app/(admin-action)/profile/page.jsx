@@ -31,7 +31,7 @@ const page = () => {
         });
        console.log(formdata);
      try {
-       const res = await axiosInstance.post('/Auth0778T/profile-update', formdata);
+       const res = await axiosInstance.post('/Auth0779T/profile-update', formdata);
        console.log("Profile update successful:", res);
        return res;
      

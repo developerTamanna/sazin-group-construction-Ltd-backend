@@ -8,11 +8,11 @@ const axiosInstance = axios.create({
 
 let interceptorId = null;
 
-export const setUserInterceptor = (user) => {
+export const setUserInterceptor = async (user) => {
    console.log("setAxios= ", user);
   // Eject old interceptor if it exists
   if (interceptorId !== null) {
-    axiosInstance.interceptors.request.eject(interceptorId);
+     axiosInstance.interceptors.request.eject(interceptorId);
   }
 
   // Add new interceptor
@@ -21,7 +21,7 @@ export const setUserInterceptor = (user) => {
       if (user) {
         config.headers['authorization'] = JSON.stringify(user);
       }else {
-      delete config.headers['x-user']; // ❌ remove header if no user
+      delete config.headers['authorization']; // ❌ remove header if no user
     }
       return config;
     },
