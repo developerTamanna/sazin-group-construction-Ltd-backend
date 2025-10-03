@@ -6,7 +6,7 @@ import { useSidebar  } from '@/context/SidebarContext';
 import CryptoJS from 'crypto-js';
 import axiosInstance from '@/utils/axios';
 
-const page = () => {
+const Page = () => {
 
   const { login } = useSidebar();
   const router = useRouter();
@@ -41,4 +41,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;
