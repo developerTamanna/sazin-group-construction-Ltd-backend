@@ -38,7 +38,6 @@ import {
   MdCategory
 } from "react-icons/md";
 import { RiShieldStarFill } from "react-icons/ri";
-import { setUserInterceptor } from "@/utils/axios";
 const SidebarContext = createContext();
 
 const Sidebarlist={
