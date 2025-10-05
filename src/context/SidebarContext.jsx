@@ -314,6 +314,7 @@ const addUser = async (user) => {
   return res;
 };
 
+
 const removeUser = async () => {
   await localforage.removeItem('user');
 };
@@ -356,6 +357,21 @@ export function SidebarProvider({ children }) {
     setUser(null);
     setLoading(false); // cookie check complete
   };
+
+   const updateJWT = async (user) => {
+    user.email=decryptData(user?.email);
+    user.username=decryptData(user?.username);
+    // expire time (7 days = 7*24*60*60*1000 ms)
+   user.expiryTime = Date.now() + (7 * 24 * 60 * 60 * 1000);
+   const res= await localforage.setItem('user', user);
+   if(!res) {
+      await setUserInterceptor(user); // axios interceptor update
+      setUser(user);
+   }else{
+    await setUserInterceptor(user); // axios interceptor update
+    setUser(user);
+   }
+}
   const [items, setItems] = useState([]); // default empty sidebar
   const [dynamicTheme, setDynamicTheme] = useState({ bgColor: '', textColor: '' });
   const pathName = usePathname();
@@ -382,7 +398,7 @@ export function SidebarProvider({ children }) {
   }, [pathName]);
 
   return (
-    <SidebarContext.Provider value={{ items, dynamicTheme,user, login, logout, loading }}>
+    <SidebarContext.Provider value={{ items, dynamicTheme,user,updateJWT, login, logout, loading }}>
       {children}
     </SidebarContext.Provider>
   );

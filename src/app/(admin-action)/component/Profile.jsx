@@ -29,30 +29,16 @@ import {
   PasswordValidationCheck,
   DateValidationCheck
  } from '@/utils/custom-validation/CustomValidation';
-import { useSidebar } from '@/context/SidebarContext';
-import toast from 'react-hot-toast';
-const Profile = ({onUpdate}) => {
-  const { user, loading } = useSidebar();
+const Profile = ({onUpdate,user}) => {
+  console.log("uauhdusicishdus",user);
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [profileImageFile, setProfileImageFile] = useState(null);
   const [profileImage, setProfileImage] = useState('/api/placeholder/120/120');
   // React Hook Form setup
   const { register, handleSubmit, reset, watch, formState: { errors, isSubmitting, isValid } } = useForm({
     mode: 'onChange',
     criteriaMode: 'all',
-    defaultValues: {
-      name: user?.username,
-      email: user?.email,
-      phone: user?.phone || "+880",
-      position: user?.position || "Project Manager",
-      department: user?.department || "Project Management",
-      company: user?.company || "Sazin Construction Ltd.",
-      location: user?.location || 'Dhaka, Bangladesh',
-      joinDate: user?.joinDate || '2022-01-15',
-      bio: user?.bio || 'A skilled project manager with over 10 years of experience. Worked on major projects including Rooppur Nuclear Power Plant and Padma Bridge.',
-      linkedin: user?.linkedin || 'https://linkedin.com/in/ahsan',
-      twitter: user?.twitter || 'https://twitter.com/ahsan',
-    },
   });
 
   const formData = watch(); // live values
@@ -61,30 +47,9 @@ const Profile = ({onUpdate}) => {
     try {
       setSaving(true);
       console.log('Profile saved:', data);
-      const res = await onUpdate(formData);
-      toast.success(res?.data?.message); // success toast
-      setSaving(false);
-      setIsEditing(false);
+      const res = await onUpdate({...data, profileImageFile});
     } catch (error) {
       console.error("Submit error:", error);
-      const message = error?.response?.data?.message || "request failed";
-      if (!message) return;
-
-      if (typeof message === "string") {
-                    toast.error(message); // সরাসরি string
-                  } else if (Array.isArray(message)) {
-                    // যদি array হয়
-                    message.forEach((msg) => toast.error(msg));
-                  } else if (typeof message === "object") {
-                    // object হলে loop করে সব key এর value দেখাবে
-                    Object.values(message).forEach((val) => {
-                      if (Array.isArray(val)) {
-                        val.forEach((msg) => toast.error(msg));
-                      } else {
-                        toast.error(val);
-                      }
-                    });
-                  }
     }finally{
       setSaving(false);
       setIsEditing(false);
@@ -104,6 +69,7 @@ const Profile = ({onUpdate}) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         setImage(e.target.result);
+        setProfileImageFile(file); // Save the file for submission
       };
       reader.readAsDataURL(file);
     }
@@ -118,13 +84,23 @@ const Profile = ({onUpdate}) => {
 
   useEffect(() => {
     if (user) {
-      setProfileImage(user?.photoURL || '/api/placeholder/120/120');
+      setProfileImage(user?.imageUrl || '/api/placeholder/120/120');
+      reset({
+      name: user.name || '',
+      email: user.email || '',
+      phone: user.phone || '+880',
+      position: user.position || 'Project Manager',
+      department: user.department || 'Project Management',
+      company: user.company || 'Sazin Construction Ltd.',
+      location: user.location || 'Dhaka, Bangladesh',
+      joinDate: user.joinDate || '2022-01-15',
+      bio: user.bio || 'A skilled project manager...',
+      linkedin: user.linkedin || 'https://linkedin.com',
+      twitter: user.twitter || 'https://twitter.com',
+    });
     }
-  }, [user, loading]);
+  }, [user, reset]);
   
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  }
   if (!user) {
     return <div className="min-h-screen flex items-center justify-center">No user data available.</div>;
   }
