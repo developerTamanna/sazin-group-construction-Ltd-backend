@@ -1,5 +1,8 @@
 // app/admin/manage/page.jsx
 'use client';
+import { useSidebar } from '@/context/SidebarContext';
+import axiosInstance from '@/utils/axios';
+import { useQuery } from '@tanstack/react-query';
 import React, { useMemo, useState } from 'react';
 import {
   FaCheckCircle,
@@ -15,6 +18,7 @@ import {
 } from 'react-icons/fa';
 
 const ManageAdmin = () => {
+  const {user}=useSidebar();
   // initial demo admin data (more entries added)
   const initialAdmins = [
     {
@@ -144,6 +148,41 @@ const ManageAdmin = () => {
       permissions: ['all'],
     },
   ];
+   const fetchUsers = async () => {
+    try{
+      if(!user?.uid) return [];
+          const res = await axiosInstance.get('/Auth0781T/manage-admin');
+          return res.data;
+    }catch(err){
+      console.log(err);
+      return [];
+    }
+
+  }
+  const {
+  data,              // The transformed or raw response data
+  error,             // The actual error object if query fails
+  isLoading,         // True only when the query is loading for the first time
+  isError,           // True if an error occurred
+  isSuccess,         // True if query was successful
+  isFetching,        // True anytime the query is fetching (initial, refetch, bg)
+  isFetched,         // True once the query has been fetched at least once
+  isStale,           // True if the cached data is stale
+  refetch,           // Manually trigger a refetch
+  status,            // 'loading' | 'error' | 'success'
+  fetchStatus,       // 'fetching' | 'paused' | 'idle' (newer addition)
+   } = useQuery({
+      queryKey: ['profile', user?.uid],
+      queryFn: fetchUsers,
+      enabled: !!user?.uid,   
+      placeholderData: null,
+      staleTime: 1000 * 60*20 ,
+      cacheTime: 1000 * 60*20 , 
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: true,       
+      retry: 2,                       
+      retryDelay: 1000,              
+    })
 
   const [admins, setAdmins] = useState(initialAdmins);
 

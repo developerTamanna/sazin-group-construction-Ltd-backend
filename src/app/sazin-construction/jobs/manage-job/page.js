@@ -10,7 +10,7 @@ export default function Page(){
     isFetchingNextPage,
     status,
     refetch
-  }=DynamicQuery('client');
+  }=DynamicQuery('jobs');
 
   useEffect(() => {
     refetch();
@@ -53,12 +53,11 @@ export default function Page(){
               </React.Fragment>
             ))}
       </div>
-  
 
       {/* Sentinel element for IntersectionObserver */}
       <div ref={loadMoreRef} className=" w-full z-[999]  h-10 mt-5 text-center">
         {isFetchingNextPage && <p className='text-red-500'>Loading more...</p>}
-        {!hasNextPage && <p className="text-gray-500">No more clients</p>}
+        {!hasNextPage && <p className="text-gray-500">No more Jobs</p>}
       </div>
     </>
   );

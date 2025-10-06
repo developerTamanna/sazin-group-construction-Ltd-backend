@@ -39,15 +39,12 @@ export default function DynamicForm({ fields, onSubmit }) {
     // ⬅️ এখন backend response না আসা পর্যন্ত wait করবে
     const result = await onSubmit(formdata);
     toast.success(result?.data?.message); // success toast
-
-
     reset();
     setImagePreviews({});
   } catch (error) {
-          console.error("Submit error:", error);
-           const message=error?.response?.data?.message
+    console.error("Submit error:", error);
+    const message = error?.response?.data?.message || "request failed";
             if (!message) return;
-
               if (typeof message === "string") {
                 toast.error(message); // সরাসরি string
               } else if (Array.isArray(message)) {
