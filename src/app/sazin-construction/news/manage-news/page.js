@@ -1,16 +1,18 @@
 'use client'
-import React, { useRef, useEffect} from "react";
-import Card from './component/Card'
+import React, { useRef, useEffect } from "react";
 import DynamicQuery from "../../components/DynamicQuery";
-export default function Page(){
-  const{
+import NewsTable from "./component/NewsTable";
+
+
+export default function Page() {
+  const {
     data,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
     status,
     refetch
-  }=DynamicQuery('news');
+  } = DynamicQuery("news");
 
   useEffect(() => {
     refetch();
@@ -26,38 +28,23 @@ export default function Page(){
           fetchNextPage();
         }
       },
-      {
-        root: null,
-        rootMargin: "0px",
-        threshold: 0.1,
-      }
+      { threshold: 0.1 }
     );
     observer.observe(loadMoreRef.current);
-
     return () => observer.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   if (status === "pending") return <p className="text-center">Loading...</p>;
-  if (status === "error") return <p className="text-center">Error fetching products!</p>;
+  if (status === "error") return <p className="text-center">Error fetching news!</p>;
+
+  const news = data?.pages?.flatMap((page) => page?.data) || [];
 
   return (
-      <>
+    <>
+      <NewsTable news={news} />
 
-  <div className="w-full flex flex-wrap items-start justify-center gap-4 bg-transparent  rounded-lg p-4">
-
-            {data?.pages.map((page, i) => (
-              <React.Fragment key={i}>
-                {page?.data?.map((item, index) => (
-                 <Card key={index} post={item}></Card>
-                ))}
-              </React.Fragment>
-            ))}
-      </div>
-  
-
-      {/* Sentinel element for IntersectionObserver */}
-      <div ref={loadMoreRef} className=" w-full z-[999]  h-10 mt-5 text-center">
-        {isFetchingNextPage && <p className='text-red-500'>Loading more...</p>}
+      <div ref={loadMoreRef} className="w-full text-center mt-5">
+        {isFetchingNextPage && <p className="text-blue-500">Loading more...</p>}
         {!hasNextPage && <p className="text-gray-500">No more news</p>}
       </div>
     </>
