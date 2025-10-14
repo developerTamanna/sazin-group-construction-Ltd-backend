@@ -2,163 +2,61 @@
 'use client';
 import { useSidebar } from '@/context/SidebarContext';
 import axiosInstance from '@/utils/axios';
+import CryptoJS from 'crypto-js';
 import { useQuery } from '@tanstack/react-query';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import toast from 'react-hot-toast';
+import Pagination from './pagination';
 import {
+  FaBuilding,
   FaCheckCircle,
-  FaEdit,
+  FaEnvelope,
   FaEye,
-  FaKey,
+  FaLinkedin,
+  FaMapMarkerAlt,
+  FaPhone,
   FaPlus,
   FaSearch,
   FaTimesCircle,
   FaTrash,
+  FaTwitter,
+  FaUser,
   FaUserCog,
   FaUserShield,
+  FaUserTie,
 } from 'react-icons/fa';
+import Image from 'next/image';
 
 const ManageAdmin = () => {
-  const {user}=useSidebar();
-  // initial demo admin data (more entries added)
-  const initialAdmins = [
-    {
-      id: 1,
-      name: 'Ahsan Habib',
-      email: 'ahsan@sazin.com',
-      role: 'Super Admin',
-      status: 'active',
-      lastActive: '2023-11-15',
-      permissions: ['all'],
-    },
-    {
-      id: 2,
-      name: 'Karim Uddin',
-      email: 'karim@sazin.com',
-      role: 'Project Manager',
-      status: 'active',
-      lastActive: '2023-11-14',
-      permissions: ['projects', 'users'],
-    },
-    {
-      id: 3,
-      name: 'Rahima Khatun',
-      email: 'rahima@sazin.com',
-      role: 'Finance Admin',
-      status: 'inactive',
-      lastActive: '2023-11-10',
-      permissions: ['finance', 'reports'],
-    },
-    {
-      id: 4,
-      name: 'Jahid Hasan',
-      email: 'jahid@sazin.com',
-      role: 'Content Moderator',
-      status: 'active',
-      lastActive: '2023-11-16',
-      permissions: ['content', 'comments'],
-    },
-    {
-      id: 5,
-      name: 'Lima Akter',
-      email: 'lima@sazin.com',
-      role: 'Moderator',
-      status: 'pending',
-      lastActive: '2023-11-05',
-      permissions: ['comments'],
-    },
-    {
-      id: 6,
-      name: 'Tamanna Akter',
-      email: 'tamanna@sazin.com',
-      role: 'Admin',
-      status: 'active',
-      lastActive: '2023-11-18',
-      permissions: ['users', 'content'],
-    },
-    {
-      id: 7,
-      name: 'Ismail Hossain',
-      email: 'ismail@sazin.com',
-      role: 'Editor',
-      status: 'active',
-      lastActive: '2023-11-12',
-      permissions: ['content'],
-    },
-    {
-      id: 8,
-      name: 'Jannat Ara',
-      email: 'jannat@sazin.com',
-      role: 'Admin',
-      status: 'inactive',
-      lastActive: '2023-10-28',
-      permissions: ['users'],
-    },
-    {
-      id: 9,
-      name: 'Nusrat Jahan',
-      email: 'nusrat@sazin.com',
-      role: 'Admin',
-      status: 'active',
-      lastActive: '2023-11-17',
-      permissions: ['reports'],
-    },
-    {
-      id: 10,
-      name: 'Mahfuz Rahman',
-      email: 'mahfuz@sazin.com',
-      role: 'Moderator',
-      status: 'active',
-      lastActive: '2023-11-13',
-      permissions: ['projects'],
-    },
-    {
-      id: 11,
-      name: 'Rafi Khan',
-      email: 'rafi@sazin.com',
-      role: 'Editor',
-      status: 'active',
-      lastActive: '2023-11-11',
-      permissions: ['content'],
-    },
-    {
-      id: 12,
-      name: 'Sumaiya Akter',
-      email: 'sumaiya@sazin.com',
-      role: 'Admin',
-      status: 'pending',
-      lastActive: '2023-11-02',
-      permissions: ['users'],
-    },
-    {
-      id: 13,
-      name: 'Rakib Hasan',
-      email: 'rakib@sazin.com',
-      role: 'Admin',
-      status: 'inactive',
-      lastActive: '2023-09-20',
-      permissions: ['reports'],
-    },
-    {
-      id: 14,
-      name: 'Hasan Ali',
-      email: 'hasan@sazin.com',
-      role: 'Admin',
-      status: 'active',
-      lastActive: '2023-11-19',
-      permissions: ['all'],
-    },
-  ];
-   const fetchUsers = async () => {
-    try{
-      if(!user?.uid) return [];
-          const res = await axiosInstance.get('/Auth0781T/manage-admin');
-          return res.data;
-    }catch(err){
-      console.log(err);
-      return [];
-    }
 
-  }
+  const {user , loading} = useSidebar();
+  const [admins, setAdmins] = useState([]);
+  const [viewAdmin,setviewAdmin]=useState(null)
+
+  // Decryption function
+  const decryptData = (data, secretKey) => {
+    const bytes = CryptoJS.AES.decrypt(data, secretKey);
+    return bytes.toString(CryptoJS.enc.Utf8);
+  };
+  const fetchUsers = async () => {
+    if(!user?.uid) return [];      
+    const res = await axiosInstance.get(`/Auth0781T/manage-admin`);
+    const encryptedFields = ["name", "eem"];
+    
+    const result=[]
+      Object.entries(res?.data?.admins || {}).map(([index, adminobj]) => {
+        const createValue={}
+        Object.entries(adminobj || {}).map(([key, value]) => {
+              if (encryptedFields.includes(key)) {
+                const decryptedValue = decryptData(value, process.env.NEXT_PUBLIC_SECRET_KEY);
+                createValue[key]=decryptedValue
+              } 
+              else createValue[key]=value
+            });
+        result.push(createValue)
+    });   
+    return result;
+  };
   const {
   data,              // The transformed or raw response data
   error,             // The actual error object if query fails
@@ -172,7 +70,7 @@ const ManageAdmin = () => {
   status,            // 'loading' | 'error' | 'success'
   fetchStatus,       // 'fetching' | 'paused' | 'idle' (newer addition)
    } = useQuery({
-      queryKey: ['profile', user?.uid],
+      queryKey: ['All admin'],
       queryFn: fetchUsers,
       enabled: !!user?.uid,   
       placeholderData: null,
@@ -183,8 +81,9 @@ const ManageAdmin = () => {
       retry: 2,                       
       retryDelay: 1000,              
     })
-
-  const [admins, setAdmins] = useState(initialAdmins);
+    useEffect(()=>{
+      if(data) setAdmins(data)
+    },[data])
 
   // UI state
   const [searchTerm, setSearchTerm] = useState('');
@@ -195,16 +94,39 @@ const ManageAdmin = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Handlers
-  const deleteAdmin = (id) => {
-    if (confirm('Are you sure you want to delete this admin?')) {
-      setAdmins((prev) => prev.filter((a) => a.id !== id));
-      // ensure currentPage is valid after deletion
-      setCurrentPage((prev) => {
-        const newTotal = Math.ceil((admins.length - 1) / itemsPerPage) || 1;
-        return Math.min(prev, newTotal);
-      });
+ const updateAdmin = async (id,email,st) => {
+    if(!user?.uid) return []; 
+    const body={
+      uid:id,
+      email:email,
+      status:st,
+    } 
+    try{  
+    const res = await axiosInstance.post(`/Auth0781T/manage-admin`,body);
+     toast.success("Admin status updated successfully")
+     console.log("res",res);
+      refetch()
+    }catch(err){
+        console.log("err",err);      
+        toast.error(err.response?.data?.message || "request failed")
     }
+  };
+
+  // Handlers
+  const deleteAdmin = async(id) => {
+    console.log(id);
+    if (confirm('Are you sure you want to delete this admin?')) {
+          if(!user?.uid) return [];  
+            try{  
+              const res = await axiosInstance.delete(`/Auth0781T/manage-admin?uid=${id}`);
+              toast.success("Admin deleted successfully")
+              console.log("res",res);
+                refetch()
+              }catch(err){
+                  console.log("err",err);                  
+                  toast.error(err.response?.data?.message || "request failed")
+              }
+         }
   };
 
   const toggleStatus = (id) => {
@@ -226,7 +148,7 @@ const ManageAdmin = () => {
     const filtered = admins.filter((admin) => {
       const matchesSearch =
         admin.name.toLowerCase().includes(term) ||
-        admin.email.toLowerCase().includes(term);
+        admin.eem.toLowerCase().includes(term);
       const matchesFilter =
         activeFilter === 'all' || admin.status === activeFilter;
       return matchesSearch && matchesFilter;
@@ -257,6 +179,22 @@ const ManageAdmin = () => {
 
   const showingFrom = totalItems === 0 ? 0 : startIndex + 1;
   const showingTo = Math.min(startIndex + pagedAdmins.length, totalItems);
+
+    // Action handlers
+  const handleApprove = async(id,email,status) => {
+    await updateAdmin(id,email,status)   
+  };
+
+  const handleReject = async(id,email,status) => {
+    await updateAdmin(id,email,status)
+  };
+
+    if(loading || !admins) return (
+    <div className='text-black'>
+       ...Loading data
+    </div>
+
+  )
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -351,7 +289,7 @@ const ManageAdmin = () => {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {pagedAdmins.map((admin) => (
-                  <tr key={admin.id} className="hover:bg-gray-50">
+                  <tr key={admin._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10 bg-red-100 rounded-full flex items-center justify-center">
@@ -359,35 +297,32 @@ const ManageAdmin = () => {
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">
-                            {admin.name}
+                            {admin?.name}
                           </div>
                           <div className="text-sm text-gray-500">
-                            {admin.email}
+                            {admin?.eem}
                           </div>
                         </div>
                       </div>
                     </td>
 
                     <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900">{admin.role}</div>
+                      <div className="text-sm text-gray-900">{admin?.position||"N/A"}</div>
                     </td>
 
                     <td className="px-6 py-4">
                       <div className="flex flex-wrap gap-1">
-                        {admin.permissions.map((permission, index) => (
                           <span
-                            key={index}
                             className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
                           >
-                            {permission}
+                            {admin?.status==='active'?"All":"N/A"}
                           </span>
-                        ))}
                       </div>
                     </td>
 
                     <td className="px-6 py-4">
                       <button
-                        onClick={() => toggleStatus(admin.id)}
+                        onClick={() => toggleStatus(admin._id)}
                         className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
                           admin.status === 'active'
                             ? 'bg-green-100 text-green-800'
@@ -400,7 +335,7 @@ const ManageAdmin = () => {
                           </>
                         ) : (
                           <>
-                            <FaTimesCircle className="mr-1" /> Inactive
+                            <FaTimesCircle className="mr-1" /> {admin?.status}
                           </>
                         )}
                       </button>
@@ -414,25 +349,28 @@ const ManageAdmin = () => {
                       <div className="flex items-center gap-2">
                         <button
                           title="View"
+                          onClick={()=>setviewAdmin(admin)}
                           className="text-blue-600 hover:text-blue-800 p-2"
                         >
                           <FaEye />
                         </button>
                         <button
-                          title="Edit"
-                          className="text-green-600 hover:text-green-800 p-2"
+                          onClick={() => handleApprove(admin._id,admin.eem,"active")}
+                          className={`${admin.status === 'active'?"cursor-not-allowed":"cursor-pointer"} text-green-600 hover:text-green-800 p-1`}
+                          disabled={admin.status === 'active'}
                         >
-                          <FaEdit />
+                          <FaCheckCircle />
                         </button>
                         <button
-                          title="Reset Password"
-                          className="text-purple-600 hover:text-purple-800 p-2"
+                          onClick={() => handleReject(admin._id,admin.eem,"rejected")}
+                          className={`${admin.status === 'rejected'?"cursor-not-allowed":"cursor-pointer"} text-red-600 hover:text-red-800 p-1`}
+                          disabled={admin.status === 'rejected'}
                         >
-                          <FaKey />
+                          <FaTimesCircle />
                         </button>
                         <button
                           title="Delete"
-                          onClick={() => deleteAdmin(admin.id)}
+                          onClick={() => deleteAdmin(admin._id)}
                           className="text-red-600 hover:text-red-800 p-2"
                         >
                           <FaTrash />
@@ -493,94 +431,163 @@ const ManageAdmin = () => {
           </div>
         </div>
       </div>
+
+         { viewAdmin && <div className=" z-[1000]   fixed top-16 bottom-4 lg:left-[max(21%,284px)]   left-1 right-1 bg-gray-50 overflow-auto pb-10">
+                 
+                  <div className="relative h-48 bg-gradient-to-r from-red-600 to-red-800">
+                    <button onClick={()=>setviewAdmin(null)} className='absolute cursor-pointer top-0 right-2 text-black text-4xl'>x</button>
+                    {/* Profile Image */}
+                    <div className="absolute -bottom-16 left-8">
+                      <div className="relative">
+                        <div className="w-32 h-32 bg-white rounded-full p-1 shadow-lg">
+                          <Image
+                            src={''}
+                            alt="Profile"
+                            className="w-full h-full rounded-full object-cover border-4 border-white"
+                            layout="fill"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+            
+                  <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+                    <div >
+                      {/* Header Actions */}
+                      <div className="flex justify-between items-start mt-20 mb-8">
+                        <div>
+                          <h1 className="text-3xl font-bold text-gray-800">
+                            {viewAdmin.name}
+                          </h1>
+                          <p className="text-gray-600 mt-1">{viewAdmin.position}</p>
+                        </div>
+                       </div>
+                    {/* Main Content */}
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* Left Column */}
+                        <div className="lg:col-span-2 space-y-6">
+                          {/* Profile Info Card */}
+                          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                            <h2 className="text-xl font-semibold text-gray-800 mb-6">
+                              Profile Information
+                            </h2>
+            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              {/* Name */}
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                  <FaUser className="inline mr-2 text-gray-400" /> Full Name
+                                </label>
+                                  <p className="text-gray-900">{viewAdmin.name}</p>
+                              </div>
+            
+                              {/* Email */}
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                  <FaEnvelope className="inline mr-2 text-gray-400" /> Email
+                                </label>
+                                  <p className="text-gray-900">{viewAdmin.eem}</p>
+                              </div>
+            
+                              {/* Phone */}
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                  <FaPhone className="inline mr-2 text-gray-400" /> Phone
+                                </label>
+                                  <p className="text-gray-900">{viewAdmin.phone}</p>
+                              </div>
+            
+            
+                              {/* Location */}
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                  <FaMapMarkerAlt className="inline mr-2 text-gray-400" /> Location
+                                </label>
+                                  <p className="text-gray-900">{viewAdmin.location}</p>
+                              </div>
+            
+                              {/* Position */}
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                  <FaUserTie className="inline mr-2 text-gray-400" /> Position
+                                </label>
+                                  <p className="text-gray-900">{viewAdmin.position}</p>
+                              </div>
+            
+            
+                              {/* Department */}
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                  <FaBuilding className="inline mr-2 text-gray-400" /> Department
+                                </label>
+                                  <p className="text-gray-900">{viewAdmin.department}</p>
+                              </div>
+                            </div>
+            
+                            {/* Bio */}
+                            <div className="mt-6">
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Bio
+                              </label>
+                                <p className="text-gray-700 leading-relaxed">{viewAdmin.bio}</p>
+                            </div>
+                          </div>
+                        </div>
+                                              {/* Right Column */}
+                            <div className="space-y-6">
+                              {/* Company Info */}
+                              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                                  Company Info
+                                </h2>
+                                <div className="space-y-3">
+                                  <div className="flex items-center gap-3">
+                                    <FaBuilding className="text-gray-400" />
+                                    <span className="text-gray-700">{viewAdmin?.company}</span>
+                                  </div>
+                                  <div className="flex items-center gap-3">
+                                    <FaUserTie className="text-gray-400" />
+                                    <span className="text-gray-700">Position: {viewAdmin?.position}</span>
+                                  </div>
+                                </div>
+                              </div>
+                
+                              {/* Social Media */}
+                              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                                <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                                  Social Media
+                                </h2>
+                                <div className="space-y-3">
+                                    <>
+                                      <a
+                                        href={viewAdmin.linkedin}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-3 text-gray-700 hover:text-red-600 transition-colors"
+                                      >
+                                        <FaLinkedin className="text-blue-600" /> LinkedIn
+                                      </a>
+                                      <a
+                                        href={viewAdmin.twitter}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-3 text-gray-700 hover:text-red-600 transition-colors"
+                                      >
+                                        <FaTwitter className="text-blue-400" /> Twitter
+                                      </a>
+                                    </>
+                                </div>
+                              </div>
+                            </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                }
     </div>
   );
 };
 
-/**
- * Pagination component (keeps the same look/feel)
- * - shows up to 7 page buttons: first, prev-if-needed, few neighbors, next-if-needed, last
- * - simplifies UX for many pages
- */
-const Pagination = ({ totalPages, currentPage, onPageChange }) => {
-  if (totalPages <= 7) {
-    return (
-      <>
-        {[...Array(totalPages)].map((_, idx) => {
-          const page = idx + 1;
-          return (
-            <button
-              key={page}
-              onClick={() => onPageChange(page)}
-              className={`px-3 py-1 text-sm rounded border ${
-                currentPage === page
-                  ? 'bg-red-500 text-white border-red-500'
-                  : 'bg-white hover:bg-gray-100 border-gray-300 text-gray-700'
-              }`}
-            >
-              {page}
-            </button>
-          );
-        })}
-      </>
-    );
-  }
-
-  // when many pages, show condensed pagination with neighbors and ellipsis
-  const pages = new Set([
-    1,
-    totalPages,
-    currentPage - 1,
-    currentPage,
-    currentPage + 1,
-  ]);
-  const pageList = [];
-  for (let i = 1; i <= totalPages; i++) {
-    if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 1)
-      pageList.push(i);
-    else if (i === 2 && pageList[pageList.length - 1] !== 2) pageList.push(2);
-    else if (
-      i === totalPages - 1 &&
-      pageList[pageList.length - 1] !== totalPages - 1
-    )
-      pageList.push(totalPages - 1);
-  }
-
-  // build unique ordered list with possible holes for ellipsis
-  const unique = Array.from(new Set(pageList)).sort((a, b) => a - b);
-  const rendered = [];
-  for (let i = 0; i < unique.length; i++) {
-    const p = unique[i];
-    const prev = unique[i - 1];
-    if (i > 0 && p - prev > 1) {
-      rendered.push('ellipsis-' + i); // placeholder
-    }
-    rendered.push(p);
-  }
-
-  return (
-    <>
-      {rendered.map((item) =>
-        typeof item === 'string' && item.startsWith('ellipsis') ? (
-          <span key={item} className="px-2 text-sm text-gray-500">
-            …
-          </span>
-        ) : (
-          <button
-            key={item}
-            onClick={() => onPageChange(item)}
-            className={`px-3 py-1 text-sm rounded border ${
-              currentPage === item
-                ? 'bg-red-500 text-white border-red-500'
-                : 'bg-white hover:bg-gray-100 border-gray-300 text-gray-700'
-            }`}
-          >
-            {item}
-          </button>
-        )
-      )}
-    </>
-  );
-};
 
 export default ManageAdmin;

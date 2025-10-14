@@ -1,5 +1,4 @@
 "use client";
-import { IconBase } from "react-icons";
 import {FaEdit, FaTrash,FaBuilding  } from "react-icons/fa";
 export default function BlogCard({ post }) {
 

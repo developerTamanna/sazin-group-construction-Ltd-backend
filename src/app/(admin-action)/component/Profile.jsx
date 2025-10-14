@@ -2,6 +2,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import ChangePassForm from './ChangePassForm';
 import {
   FaBuilding,
   FaCalendarAlt,
@@ -30,8 +31,8 @@ import {
   DateValidationCheck
  } from '@/utils/custom-validation/CustomValidation';
 const Profile = ({onUpdate,user}) => {
-  console.log("uauhdusicishdus",user);
   const [isEditing, setIsEditing] = useState(false);
+  const [changePass,setchangePass]=useState(false)
   const [saving, setSaving] = useState(false);
   const [profileImageFile, setProfileImageFile] = useState(null);
   const [profileImage, setProfileImage] = useState('/api/placeholder/120/120');
@@ -465,7 +466,7 @@ const Profile = ({onUpdate,user}) => {
                 </h2>
                 <button
                   type="button"
-                  onClick={() => alert('Change Password functionality to be implemented')}
+                  onClick={() => setchangePass(true)}
                   className="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
                 >
                   <FaLock /> Change Password
@@ -475,6 +476,7 @@ const Profile = ({onUpdate,user}) => {
           </div>
         </form>
       </div>
+      {changePass && <ChangePassForm closeModal={setchangePass}></ChangePassForm>}
     </div>
   );
 };

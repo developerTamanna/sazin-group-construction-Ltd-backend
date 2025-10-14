@@ -16,7 +16,7 @@ function Sidebar() {
     <>
       {/* 🔹 Mobile Toggle Button */}
       <button
-        className="md:hidden fixed top-20 left-4 z-[999] p-2 rounded-md bg-gray-200 text-red-500"
+        className="lg:hidden fixed top-20 left-4 z-[999] p-2 rounded-md bg-gray-200 text-red-500"
         onClick={() => setOpenSidebar(!openSidebar)}
       >
         {openSidebar ? <FaTimes /> : <FaBars />}
@@ -30,7 +30,7 @@ function Sidebar() {
 
         ${
           openSidebar ? 'translate-x-0 fixed top-16' : '-translate-x-full'
-        } md:translate-x-0`}
+        } lg:translate-x-0`}
       >
         {/* 🔹 Logo Section */}
         <div className="flex items-center justify-center mb-6">

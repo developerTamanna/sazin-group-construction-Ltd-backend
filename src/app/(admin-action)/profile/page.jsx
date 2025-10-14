@@ -26,7 +26,7 @@ const Page = () => {
       return CryptoJS.AES.encrypt(data, secretKey).toString();
     };
 
-      const fetchUsers = async () => {
+  const fetchUsers = async () => {
     if(!user?.uid) return [];      
     const res = await axiosInstance.get(`/Auth0780T/profile?uid=${user?.uid}`);
     const encryptedFields = ["name", "email"];

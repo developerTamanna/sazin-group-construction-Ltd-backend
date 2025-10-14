@@ -1,6 +1,11 @@
 // app/admin/pending/page.jsx
 'use client';
-import { useState } from 'react';
+import { useEffect,  useState } from 'react';
+import CryptoJS from 'crypto-js';
+import axiosInstance from '@/utils/axios';
+import { useSidebar } from '@/context/SidebarContext';
+import { useQuery } from '@tanstack/react-query';
+import Pagination from './pagination';
 import {
   FaCalendarAlt,
   FaCheckCircle,
@@ -14,114 +19,152 @@ import {
   FaUserCheck,
   FaUserClock,
   FaUserTimes,
+  FaBuilding,
+  FaMapMarkerAlt,
+  FaUser,
+  FaUserTie,
+  FaLinkedin,
+  FaTwitter,
 } from 'react-icons/fa';
+
+import toast from 'react-hot-toast';
+import Image from 'next/image';
 
 const PendingAdmin = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedRequests, setSelectedRequests] = useState([]);
+  const [pendingRequests,setAdmin]=useState([]);
+  const [filteredRequests,setfilteredRequests]=useState([]);
+  const [viewAdmin,setviewAdmin]=useState(null)
 
-  // Sample pending requests data
-  const pendingRequests = [
-    {
-      id: 1,
-      name: 'Rafiqul Islam',
-      email: 'rafikul.islam@email.com',
-      phone: '+8801712345678',
-      position: 'Senior Project Manager',
-      experience: '5 years',
-      submittedDate: '2023-11-15',
-      status: 'pending',
-      documents: ['CV', 'NID', 'Educational Certificate'],
-      notes: 'Experience in Metro Rail project',
-    },
-    {
-      id: 2,
-      name: 'Salma Khatun',
-      email: 'salma.khatun@email.com',
-      phone: '+8801812345678',
-      position: 'Finance Admin',
-      experience: '3 years',
-      submittedDate: '2023-11-14',
-      status: 'pending',
-      documents: ['CV', 'TIN'],
-      notes: 'Completed CA',
-    },
-    {
-      id: 3,
-      name: 'Anisur Rahman',
-      email: 'anisur.rahman@email.com',
-      phone: '+8801912345678',
-      position: 'Contract Manager',
-      experience: '7 years',
-      submittedDate: '2023-11-10',
-      status: 'reviewed',
-      documents: ['CV', 'NID', 'Company Registration'],
-      notes: 'Has experience in large projects',
-    },
-    {
-      id: 4,
-      name: 'Tasnima Akter',
-      email: 'tasnima.akter@email.com',
-      phone: '+8801612345678',
-      position: 'Quality Assurance Manager',
-      experience: '4 years',
-      submittedDate: '2023-11-08',
-      status: 'approved',
-      documents: ['CV', 'Training Certificate'],
-      notes: 'Certified ISO Auditor',
-    },
-    {
-      id: 5,
-      name: 'Javed Karim',
-      email: 'javed.karim@email.com',
-      phone: '+8801512345678',
-      position: 'Site Engineer',
-      experience: '2 years',
-      submittedDate: '2023-11-05',
-      status: 'rejected',
-      documents: ['CV', 'BSc Certificate'],
-      notes: 'Less experience',
-    },
-  ];
+    const {user , loading} = useSidebar();
+
+    // Decryption function
+    const decryptData = (data, secretKey) => {
+      const bytes = CryptoJS.AES.decrypt(data, secretKey);
+      return bytes.toString(CryptoJS.enc.Utf8);
+    };
+
+
+
+  const fetchUsers = async () => {
+    if(!user?.uid) return [];      
+    const res = await axiosInstance.get(`/Auth0781T/manage-admin`);
+    const encryptedFields = ["name", "eem"];
+    
+    const result=[]
+      Object.entries(res?.data?.admins || {}).map(([index, adminobj]) => {
+        const createValue={}
+        Object.entries(adminobj || {}).map(([key, value]) => {
+              if (encryptedFields.includes(key)) {
+                const decryptedValue = decryptData(value, process.env.NEXT_PUBLIC_SECRET_KEY);
+                createValue[key]=decryptedValue
+              } 
+              else createValue[key]=value
+            });
+        result.push(createValue)
+    });   
+    return result;
+  };
+  const {
+  data,              // The transformed or raw response data
+  error,             // The actual error object if query fails
+  isLoading,         // True only when the query is loading for the first time
+  isError,           // True if an error occurred
+  isSuccess,         // True if query was successful
+  isFetching,        // True anytime the query is fetching (initial, refetch, bg)
+  isFetched,         // True once the query has been fetched at least once
+  isStale,           // True if the cached data is stale
+  refetch,           // Manually trigger a refetch
+  status,            // 'loading' | 'error' | 'success'
+  fetchStatus,       // 'fetching' | 'paused' | 'idle' (newer addition)
+   } = useQuery({
+      queryKey: ['All admin'],
+      queryFn: fetchUsers,
+      enabled: !!user?.uid,   
+      placeholderData: null,
+      staleTime: 1000 * 60*20 ,
+      cacheTime: 1000 * 60*20 , 
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: true,       
+      retry: 2,                       
+      retryDelay: 1000,              
+    })
+    useEffect(()=>{
+      if(data) setAdmin(data)
+    },[data])
+
+    const updateAdmin = async (id,email,st) => {
+    if(!user?.uid) return []; 
+    const body={
+      uid:id,
+      email:email,
+      status:st,
+    } 
+    try{  
+    const res = await axiosInstance.post(`/Auth0781T/manage-admin`,body);
+     toast.success("Admin status updated successfully")
+     console.log("res",res);
+      refetch()
+    }catch(err){
+        console.log("err",err);
+        
+        toast.error(err.response?.data?.message || "request failed")
+    }
+  };
 
   // Filtered requests
-  const filteredRequests = pendingRequests.filter((request) => {
-    const matchesSearch =
+  const filter =()=>{
+    console.log("calll");    
+    const res= pendingRequests.filter((request) => {   
+     const matchesSearch =
       request.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      request.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      request.position.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter =
+      request.eem.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesFilter =
       statusFilter === 'all' || request.status === statusFilter;
     return matchesSearch && matchesFilter;
-  });
+  }); 
+  return pendingRequests || [];
+}
+
+  useEffect(()=>{
+    console.log("xmckdnc",pendingRequests);
+        const res=filter();
+        setfilteredRequests(res);  
+    
+  },[statusFilter,searchTerm,pendingRequests])
 
   // Select/Deselect all
   const toggleSelectAll = () => {
     if (selectedRequests.length === filteredRequests.length) {
       setSelectedRequests([]);
     } else {
-      setSelectedRequests(filteredRequests.map((req) => req.id));
+      setSelectedRequests(filteredRequests.map((req) => req._id));
     }
   };
 
   // Select/Deselect single
   const toggleSelectRequest = (id) => {
-    setSelectedRequests((prev) =>
+      setSelectedRequests((prev) =>
       prev.includes(id) ? prev.filter((reqId) => reqId !== id) : [...prev, id]
     );
   };
 
   // Action handlers
-  const handleApprove = (id) => {
-    console.log(`Approving request ${id}`);
-    alert('Request has been approved!');
+  const handleApprove = async(id,email,status) => {
+    await updateAdmin(id,email,status)   
   };
 
-  const handleReject = (id) => {
-    console.log(`Rejecting request ${id}`);
-    alert('Request has been rejected!');
+  const handleReject = async(id,email,status) => {
+    await updateAdmin(id,email,status)
   };
+
+  const handleView=async(request)=>{
+    console.log("click",request);
+    
+     setviewAdmin(request);
+  }
 
   const handleBulkAction = (action) => {
     if (selectedRequests.length === 0) {
@@ -132,8 +175,33 @@ const PendingAdmin = () => {
     alert(`${selectedRequests.length} requests have been ${action}d!`);
   };
 
+    // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  const totalItems = filteredRequests.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const pagedAdmins = filteredRequests.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+
+  // ensure currentPage stays within bounds if filters change
+  if (currentPage > totalPages) setCurrentPage(totalPages);
+
+  const showingFrom = totalItems === 0 ? 0 : startIndex + 1;
+  const showingTo = Math.min(startIndex + pagedAdmins.length, totalItems);
+
+  if(  loading || !pendingRequests) return (
+    <div className='text-black'>
+       ...Loading data
+    </div>
+
+  )
+
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen relative bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -193,7 +261,7 @@ const PendingAdmin = () => {
                 <p className="text-sm text-gray-600">Approved</p>
                 <p className="text-2xl font-bold text-gray-800">
                   {
-                    pendingRequests.filter((r) => r.status === 'approved')
+                    pendingRequests.filter((r) => r.status === 'active')
                       .length
                   }
                 </p>
@@ -230,7 +298,7 @@ const PendingAdmin = () => {
                 <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search by name, email or position..."
+                  placeholder="Search by name or email..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors"
@@ -246,7 +314,6 @@ const PendingAdmin = () => {
               >
                 <option value="all">All Status</option>
                 <option value="pending">Pending</option>
-                <option value="reviewed">Reviewed</option>
                 <option value="approved">Approved</option>
                 <option value="rejected">Rejected</option>
               </select>
@@ -330,13 +397,13 @@ const PendingAdmin = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {filteredRequests.map((request) => (
-                  <tr key={request.id} className="hover:bg-gray-50">
+                 {filteredRequests.map((request) => (
+                  <tr key={request._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <input
                         type="checkbox"
-                        checked={selectedRequests.includes(request.id)}
-                        onChange={() => toggleSelectRequest(request.id)}
+                        checked={selectedRequests.includes(request._id)}
+                        onChange={() => toggleSelectRequest(request._id)}
                         className="rounded border-gray-300 text-red-600 focus:ring-red-500"
                       />
                     </td>
@@ -346,7 +413,7 @@ const PendingAdmin = () => {
                           {request.name}
                         </div>
                         <div className="text-sm text-gray-500 flex items-center gap-1">
-                          <FaEnvelope className="text-xs" /> {request.email}
+                          <FaEnvelope className="text-xs" /> {request.eem}
                         </div>
                         <div className="text-sm text-gray-500 flex items-center gap-1">
                           <FaPhone className="text-xs" /> {request.phone}
@@ -362,18 +429,16 @@ const PendingAdmin = () => {
                     <td className="px-6 py-4 text-sm text-gray-500">
                       <div className="flex items-center gap-1">
                         <FaCalendarAlt className="text-xs" />{' '}
-                        {request.submittedDate}
+                        {new Date(request.createdAt).toLocaleString()}
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          request.status === 'approved'
+                          request.status === 'active'
                             ? 'bg-green-100 text-green-800'
                             : request.status === 'rejected'
                             ? 'bg-red-100 text-red-800'
-                            : request.status === 'reviewed'
-                            ? 'bg-blue-100 text-blue-800'
                             : 'bg-yellow-100 text-yellow-800'
                         }`}
                       >
@@ -383,19 +448,21 @@ const PendingAdmin = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <button className="text-blue-600 hover:text-blue-800 p-1">
+                        <button 
+                          onClick={()=>handleView(request)}
+                          className="text-blue-600 hover:text-blue-800 p-1 cursor-pointer">
                           <FaEye />
                         </button>
                         <button
-                          onClick={() => handleApprove(request.id)}
-                          className="text-green-600 hover:text-green-800 p-1"
-                          disabled={request.status === 'approved'}
+                          onClick={() => handleApprove(request._id,request.eem,"active")}
+                          className={`${request.status === 'active'?"cursor-not-allowed":"cursor-pointer"} text-green-600 hover:text-green-800 p-1`}
+                          disabled={request.status === 'active'}
                         >
                           <FaCheckCircle />
                         </button>
                         <button
-                          onClick={() => handleReject(request.id)}
-                          className="text-red-600 hover:text-red-800 p-1"
+                          onClick={() => handleReject(request._id,request.eem,"rejected")}
+                          className={`${request.status === 'rejected'?"cursor-not-allowed":"cursor-pointer"} text-red-600 hover:text-red-800 p-1`}
                           disabled={request.status === 'rejected'}
                         >
                           <FaTimesCircle />
@@ -403,7 +470,7 @@ const PendingAdmin = () => {
                       </div>
                     </td>
                   </tr>
-                ))}
+                ))} 
               </tbody>
             </table>
           </div>
@@ -415,32 +482,203 @@ const PendingAdmin = () => {
             </div>
           )}
         </div>
-
         {/* Pagination */}
         <div className="bg-white rounded-xl shadow-sm p-4 mt-6 border border-gray-200">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="text-sm text-gray-700">
-              Showing <span className="font-medium">1</span> to{' '}
-              <span className="font-medium">5</span> of{' '}
-              <span className="font-medium">{filteredRequests.length}</span>{' '}
-              results
+              Showing <span className="font-medium">{showingFrom}</span> to{' '}
+              <span className="font-medium">{showingTo}</span> of{' '}
+              <span className="font-medium">{totalItems}</span> results
             </div>
-            <div className="flex gap-2">
-              <button className="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              >
                 Previous
               </button>
-              <button className="px-3 py-1 border border-red-500 bg-red-500 text-white rounded-md text-sm">
-                1
-              </button>
-              <button className="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
+
+              {/* page numbers (show up to 7 pages with ellipsis when needed) */}
+              <Pagination
+                totalPages={totalPages}
+                currentPage={currentPage}
+                onPageChange={(p) => setCurrentPage(p)}
+              />
+
+              <button
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              >
                 Next
               </button>
             </div>
           </div>
         </div>
       </div>
+     
+       { viewAdmin && <div className=" z-[1000]   fixed top-16 bottom-4 lg:left-[max(21%,284px)]   left-1 right-1 bg-gray-50 overflow-auto pb-10">
+           
+            <div className="relative h-48 bg-gradient-to-r from-red-600 to-red-800">
+              <button onClick={()=>setviewAdmin(null)} className='absolute cursor-pointer top-0 right-2 text-black text-4xl'>x</button>
+              {/* Profile Image */}
+              <div className="absolute -bottom-16 left-8">
+                <div className="relative">
+                  <div className="w-32 h-32 bg-white rounded-full p-1 shadow-lg">
+                    <Image
+                      src={''}
+                      alt="Profile"
+                      className="w-full h-full rounded-full object-cover border-4 border-white"
+                      layout="fill"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+      
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+              <div >
+                {/* Header Actions */}
+                <div className="flex justify-between items-start mt-20 mb-8">
+                  <div>
+                    <h1 className="text-3xl font-bold text-gray-800">
+                      {viewAdmin.name}
+                    </h1>
+                    <p className="text-gray-600 mt-1">{viewAdmin.position}</p>
+                  </div>
+                 </div>
+              {/* Main Content */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  {/* Left Column */}
+                  <div className="lg:col-span-2 space-y-6">
+                    {/* Profile Info Card */}
+                    <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                      <h2 className="text-xl font-semibold text-gray-800 mb-6">
+                        Profile Information
+                      </h2>
+      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Name */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <FaUser className="inline mr-2 text-gray-400" /> Full Name
+                          </label>
+                            <p className="text-gray-900">{viewAdmin.name}</p>
+                        </div>
+      
+                        {/* Email */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <FaEnvelope className="inline mr-2 text-gray-400" /> Email
+                          </label>
+                            <p className="text-gray-900">{viewAdmin.eem}</p>
+                        </div>
+      
+                        {/* Phone */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <FaPhone className="inline mr-2 text-gray-400" /> Phone
+                          </label>
+                            <p className="text-gray-900">{viewAdmin.phone}</p>
+                        </div>
+      
+      
+                        {/* Location */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <FaMapMarkerAlt className="inline mr-2 text-gray-400" /> Location
+                          </label>
+                            <p className="text-gray-900">{viewAdmin.location}</p>
+                        </div>
+      
+                        {/* Position */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <FaUserTie className="inline mr-2 text-gray-400" /> Position
+                          </label>
+                            <p className="text-gray-900">{viewAdmin.position}</p>
+                        </div>
+      
+      
+                        {/* Department */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <FaBuilding className="inline mr-2 text-gray-400" /> Department
+                          </label>
+                            <p className="text-gray-900">{viewAdmin.department}</p>
+                        </div>
+                      </div>
+      
+                      {/* Bio */}
+                      <div className="mt-6">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Bio
+                        </label>
+                          <p className="text-gray-700 leading-relaxed">{viewAdmin.bio}</p>
+                      </div>
+                    </div>
+                  </div>
+                                        {/* Right Column */}
+                      <div className="space-y-6">
+                        {/* Company Info */}
+                        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                            Company Info
+                          </h2>
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-3">
+                              <FaBuilding className="text-gray-400" />
+                              <span className="text-gray-700">{viewAdmin?.company}</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <FaUserTie className="text-gray-400" />
+                              <span className="text-gray-700">Position: {viewAdmin?.position}</span>
+                            </div>
+                          </div>
+                        </div>
+          
+                        {/* Social Media */}
+                        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                            Social Media
+                          </h2>
+                          <div className="space-y-3">
+                              <>
+                                <a
+                                  href={viewAdmin.linkedin}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-3 text-gray-700 hover:text-red-600 transition-colors"
+                                >
+                                  <FaLinkedin className="text-blue-600" /> LinkedIn
+                                </a>
+                                <a
+                                  href={viewAdmin.twitter}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-3 text-gray-700 hover:text-red-600 transition-colors"
+                                >
+                                  <FaTwitter className="text-blue-400" /> Twitter
+                                </a>
+                              </>
+                          </div>
+                        </div>
+                      </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          }
+          
     </div>
   );
+
+  
 };
 
 export default PendingAdmin;
