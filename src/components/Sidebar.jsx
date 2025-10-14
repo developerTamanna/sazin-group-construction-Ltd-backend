@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { FaBars, FaTimes } from 'react-icons/fa'; // toggle button icon
 
 function Sidebar() {
-  const { items, dynamicTheme } = useSidebar();
+  const { items, dynamicTheme,logout } = useSidebar();
   const [toggle, settoggle] = React.useState(false);
   const [openSidebar, setOpenSidebar] = React.useState(false); // 🔹 sidebar open/close state
   const pathName = usePathname();
@@ -26,7 +26,7 @@ function Sidebar() {
       <aside
         className={`${dynamicTheme.bgColor} ${
           dynamicTheme.textColor
-        } text-base rounded-bl-md h-full w-full overflow-auto py-4 pl-4 bg-blue-500
+        } relative text-base rounded-bl-md h-full w-full overflow-auto py-4 pl-4 bg-blue-500
 
         ${
           openSidebar ? 'translate-x-0 fixed top-16' : '-translate-x-full'
@@ -99,6 +99,11 @@ function Sidebar() {
             </li>
           ))}
         </ul>
+        <button
+          onClick={()=>logout()} 
+          className="absolute bottom-2 w-full text-center p-2 cursor-pointer">
+            Logout
+        </button>
       </aside>
     </>
   );

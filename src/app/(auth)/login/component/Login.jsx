@@ -194,12 +194,12 @@ const Login = ({ onLogin }) => {
                       Remember me
                     </label>
                   </div>
-                  <a
-                    href="#"
+                  <Link
+                    href="/forgotten"
                     className="text-sm font-medium text-red-600 hover:text-red-500 dark:text-red-400 dark:hover:text-red-300"
                   >
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
 
                 <button

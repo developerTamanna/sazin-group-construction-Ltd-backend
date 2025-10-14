@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 import localforage from "localforage";
 import CryptoJS from "crypto-js";
-import {setUserInterceptor} from '@/utils/axios';
+import axiosInstance, {setUserInterceptor} from '@/utils/axios';
 
 // FontAwesome icons
 import {
@@ -38,6 +38,7 @@ import {
   MdCategory
 } from "react-icons/md";
 import { RiShieldStarFill } from "react-icons/ri";
+import toast from "react-hot-toast";
 const SidebarContext = createContext();
 
 const Sidebarlist={
@@ -352,10 +353,19 @@ export function SidebarProvider({ children }) {
 
   const logout = async() => {
     setLoading(true); // start loading
-    await setUserInterceptor(null); // axios interceptor update
-    await removeUser();
-    setUser(null);
-    setLoading(false); // cookie check complete
+    try{
+     const res= await axiosInstance.post("Auth0784T/logout")
+     console.log(res);
+     
+      toast.success(res?.response?.data?.message || '')
+      await setUserInterceptor(null); // axios interceptor update
+      await removeUser();
+      setUser(null);
+    }catch(err){
+      toast.error(err?.response?.data.message || "request failed")
+    }finally{
+      setLoading(false); // cookie check complete
+    }
   };
 
    const updateJWT = async (user) => {
