@@ -54,8 +54,8 @@ const Login = ({ onLogin }) => {
            reset();
            router.push("/profile");
        } catch (error) {
-      console.error("Submit error:", error);
-      const message = error?.response?.data?.message;
+      console.log("Submit error:", error);
+      const message = error?.response?.data?.message || "request failed";
       if (!message) return;
 
       if (typeof message === "string") {

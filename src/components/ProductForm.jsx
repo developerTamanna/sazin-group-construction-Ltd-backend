@@ -3,6 +3,33 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useSidebar } from '@/context/SidebarContext';
 
+const option = [
+  {
+    name: "Revvo Helmet",
+    submenu: [
+      { name: "Full Face" },
+      { name: "Modular Face"},
+      { name: "Open Face"},
+      { name: "Half Face"},
+    ],
+  },
+  {
+    name: "Safety Accessories",
+    submenu: [
+      { name: "Safety Helmets (Hard Hats)"},
+      { name: "Safety Goggles / Face Shields"},
+      { name: "Ear Plugs / Ear Muffs"},
+      { name: "Safety Gloves"},
+      { name: "Safety Shoes / Gumboots"},
+      { name: "High-Visibility Safety Vests"},
+      { name: "Respirators / Masks"},
+      { name: "Coveralls / Suits"},
+      { name: "Fall Protection Harness"},
+      { name: "Welding Helmets & Gloves"},
+    ],
+  },
+];
+
 function ProductForm() {
   const { dynamicTheme } = useSidebar();
   const {
@@ -97,11 +124,17 @@ function ProductForm() {
                 {...register('category', { required: 'Category is required' })}
                 className={`w-full p-4 rounded-lg outline-none border ${dynamicTheme.formInput}`}
               >
-                <option value="">-- Select Category --</option>
-                <option value="electronics">Electronics</option>
-                <option value="fashion">Fashion</option>
-                <option value="home">Home</option>
-                <option value="toys">Toys</option>
+              <option value="">-- Select Category --</option>
+                {option.map((category) => (
+                  <optgroup key={category.name} label={category.name}>
+                    {category.submenu.map((sub) => (
+                      <option key={sub.name} value={sub.link}>
+                        {sub.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+
               </select>
               {errors.category && (
                 <p className="text-red-500 text-sm mt-1">{errors.category.message}</p>
