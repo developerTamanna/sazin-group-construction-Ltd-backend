@@ -1,4 +1,5 @@
 'use client'
+import ProductUpdate from '@/app/helmet&safty-accessories/components/productUpdate';
 import ViewDetail from '@/app/helmet&safty-accessories/components/viewCard';
 import axiosInstance from '@/utils/axios';
 import Image from 'next/image';
@@ -10,6 +11,7 @@ import { FiSearch } from "react-icons/fi";
 function Table({ data,refetch }) {
 
   const [viewData,setviewData]=useState(null)
+  const [updateData,setUpdateData]=useState(null)
   // Handlers
   const deleteProduct = async(id) => {
     console.log(id);
@@ -96,6 +98,7 @@ function Table({ data,refetch }) {
                         <FaEye size={18} />
                       </button>
                        <button
+                        onClick={()=>setUpdateData(item)}
                         className="p-2 rounded-full hover:bg-green-100 text-green-600"
                         title="Edit"
                       >
@@ -118,6 +121,7 @@ function Table({ data,refetch }) {
         </table>
       </div>
       {viewData && <ViewDetail product={viewData} setviewData={setviewData}></ViewDetail> }
+      {updateData && <ProductUpdate data={updateData} setUpdateData={setUpdateData} refetch={refetch}></ProductUpdate>}
     </div>
   );
 }

@@ -94,6 +94,10 @@ const ViewDetail = ({ product, setviewData}) => {
                 <b>Added On:</b>{' '}
                 {new Date(product?.postedAt || Date.now()).toLocaleString()}
               </span>
+             {product?.updatedAt && <span>
+                <b>Updated On:</b>{' '}
+                {new Date(product?.updatedAt).toLocaleString()}
+              </span>}
             </div>
           </div>
         </div>
