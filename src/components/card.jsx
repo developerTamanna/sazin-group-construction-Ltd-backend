@@ -1,13 +1,30 @@
 'use client'
-import { useSidebar } from '@/context/SidebarContext';
+import ViewDetail from '@/app/helmet&safty-accessories/components/viewCard';
+import axiosInstance from '@/utils/axios';
 import Image from 'next/image';
-import React from 'react';
+import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import { FiSearch } from "react-icons/fi";
 
-function Table({ data }) {
-  const { dynamicTheme } = useSidebar();
+function Table({ data,refetch }) {
 
+  const [viewData,setviewData]=useState(null)
+  // Handlers
+  const deleteProduct = async(id) => {
+    console.log(id);
+    if (confirm('Are you sure you want to delete this?')) { 
+            try{  
+              const res = await axiosInstance.delete(`/Helmets&Safety/deleteAction/delete-product?id=${id}`);
+              toast.success("deleted successfully")
+              console.log("res",res);
+                refetch()
+              }catch(err){
+                  console.log("err",err);                  
+                  toast.error(err.response?.data?.message || "request failed")
+              }
+         }
+  };
   return (
     <div className="w-full bg-white shadow-md rounded-lg p-4">
       {/* 🔍 Search + Filter + Sort */}
@@ -57,7 +74,7 @@ function Table({ data }) {
                   >
                     <td className="p-3">
                       <Image
-                        src={item?.image}
+                        src={item?.imageUrl}
                         alt={item?.title}
                         width={80}
                         height={60}
@@ -68,26 +85,30 @@ function Table({ data }) {
                       {item?.title}
                     </td>
                     <td className="p-3">{item?.productName}</td>
-                    <td className="p-3 font-medium text-gray-700">{item?.price}</td>
-                    <td className="p-3 flex items-center justify-center gap-3">
+                    <td className="p-3  font-medium text-gray-700">{item?.price}</td>
+                    <td className="p-3 ">
+                      <div className=' flex items-center justify-center gap-3'>
                       <button
+                        onClick={()=>setviewData(item)}
                         className="p-2 rounded-full hover:bg-blue-100 text-blue-600"
                         title="View"
                       >
                         <FaEye size={18} />
                       </button>
-                      <button
+                       <button
                         className="p-2 rounded-full hover:bg-green-100 text-green-600"
                         title="Edit"
                       >
                         <FaEdit size={18} />
                       </button>
                       <button
+                        onClick={()=>deleteProduct(item._id)}
                         className="p-2 rounded-full hover:bg-red-100 text-red-600"
                         title="Delete"
                       >
                         <FaTrash size={18} />
-                      </button>
+                      </button> 
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -96,6 +117,7 @@ function Table({ data }) {
           </tbody>
         </table>
       </div>
+      {viewData && <ViewDetail product={viewData} setviewData={setviewData}></ViewDetail> }
     </div>
   );
 }

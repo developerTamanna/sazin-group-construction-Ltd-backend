@@ -52,7 +52,7 @@ export default function QueryFunction({value ,ky}) {
   return (
       <>
 
-        <Card data={data} />
+        <Card data={data} refetch={refetch} />
   
 
       {/* Sentinel element for IntersectionObserver */}

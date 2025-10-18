@@ -42,7 +42,6 @@ export default function Page() {
   return (
     <>
       <NewsTable news={news} />
-
       <div ref={loadMoreRef} className="w-full text-center mt-5">
         {isFetchingNextPage && <p className="text-blue-500">Loading more...</p>}
         {!hasNextPage && <p className="text-gray-500">No more news</p>}

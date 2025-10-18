@@ -1,7 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useSidebar } from '@/context/SidebarContext';
+import toast from 'react-hot-toast';
 
 const option = [
   {
@@ -30,7 +31,7 @@ const option = [
   },
 ];
 
-function ProductForm() {
+function ProductForm({onSubmit}) {
   const { dynamicTheme } = useSidebar();
   const {
     register,
@@ -40,20 +41,59 @@ function ProductForm() {
     formState: { errors },
   } = useForm();
   const [imagePreview, setImagePreview] = useState(null);
-
-  const onSubmit = (data) => {
-    console.log('Form Data:', data);
-    reset();
-    setImagePreview(null);
-  };
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const watchImage = watch('image');
+ const Submithandel = async (data) => {
+       setIsSubmitting(true); //  submitting শুরু
+        try {
+          console.log("form",data);
+          const formdata = new FormData();
+          Object.entries(data).forEach(([key, value]) => {
+            if (key === "image" && value && value.length > 0) {
+              formdata.append("image", value[0]);
+            } else {
+              console.log(key,value);
+              formdata.append(key, value);
+            }
+          });
+          // ⬅️ এখন backend response না আসা পর্যন্ত wait করবে
+          const result = await onSubmit(formdata);
+          toast.success(result?.data?.message); // success toast
+          reset();
+          setImagePreview(null);
+        } catch (error) {
+          console.error("Submit error:", error);
+          const message = error?.response?.data?.message || "request failed";
+                  if (!message) return;
+                    if (typeof message === "string") {
+                      toast.error(message); // সরাসরি string
+                    } else if (Array.isArray(message)) {
+                      // যদি array হয়
+                      message.forEach((msg) => toast.error(msg));
+                    } else if (typeof message === "object") {
+                      // object হলে loop করে সব key এর value দেখাবে
+                      Object.values(message).forEach((val) => {
+                        if (Array.isArray(val)) {
+                          val.forEach((msg) => toast.error(msg));
+                        } else {
+                          toast.error(val);
+                        }
+                      });
+                    }
+        } finally {
+          setIsSubmitting(false); // ✅ backend থেকে response এলেই বন্ধ হবে
+        }
+};
 
   const hasDiscount = watch('hasDiscount');
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) setImagePreview(URL.createObjectURL(file));
-  };
-
+  useEffect(()=>{
+     if(!watchImage) return;
+     if (watchImage?.length===1) {
+          console.log('image',watchImage?.length);
+          console.log('image',watchImage?.[0]);
+          setImagePreview(() => ( URL.createObjectURL(watchImage?.[0]) ));
+    }
+  },[watchImage])
   return (
     <div
       className={`${dynamicTheme.mainBg} min-h-[92vh] flex items-center justify-center`}
@@ -66,7 +106,7 @@ function ProductForm() {
         </h2>
 
         {/* Form with two-column layout */}
-        <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <form onSubmit={handleSubmit(Submithandel)} className="grid grid-cols-1 md:grid-cols-2 gap-8">
           
           {/* LEFT SIDE */}
           <div className="space-y-6">
@@ -154,7 +194,7 @@ function ProductForm() {
                   type="file"
                   accept="image/*"
                   {...register('image', { required: 'Image is required' })}
-                  onChange={handleImageChange}
+                  /* onChange={handleImageChange} */
                   className="hidden"
                   id="productImage"
                 />
@@ -168,7 +208,7 @@ function ProductForm() {
                       alt="Preview"
                       className="object-cover h-full w-full rounded-xl"
                     />
-                  ) : (
+                  ):(
                     <p className="text-gray-400 text-center">📷 Click to Upload Image</p>
                   )}
                 </label>
@@ -227,17 +267,17 @@ function ProductForm() {
               <label className="font-medium">Is Featured?</label>
             </div>
           </div>
-        </form>
 
         {/* Submit Button */}
         <div className="mt-8">
           <button
             type="submit"
-            className={`w-full py-4 rounded-lg text-white font-semibold transition ${dynamicTheme.formButton}`}
+            className={`w-full span-full py-4 rounded-lg text-white font-semibold transition ${dynamicTheme.formButton}`}
           >
-            Submit Product
+            {isSubmitting?"Submiting....":"Submit Product"}
           </button>
         </div>
+      </form>
       </div>
     </div>
   );

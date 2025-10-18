@@ -3,7 +3,7 @@ import QueryFunction from '../../../../../utils/queryFuction'
 export default function Card() {
  return(
    <div className='  h-full  w-full   mt-4'>
-     <QueryFunction value="half-face" ky="category" />
+     <QueryFunction value="Half Face" ky="category" />
    </div>
  )
 }

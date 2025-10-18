@@ -2,8 +2,8 @@
 import axiosInstance from "@/utils/axios";
 
 export const fetchProducts = async (pageParam = 1, value = "", ky = "",isFeature='') => {
+  
   const limit = 10;
-
   // query params build
   const params = new URLSearchParams({
     page: pageParam,

@@ -3,7 +3,7 @@ import QueryFunction from '../../../../../utils/queryFuction'
 export default function Card() {
  return(
    <div className='  h-full  w-full   mt-4'>
-     <QueryFunction value="welding-helmets-gloves" ky="category" />
+     <QueryFunction value="Welding Helmets & Gloves" ky="category" />
    </div>
  )
 }
