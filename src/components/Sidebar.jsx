@@ -26,25 +26,26 @@ function Sidebar() {
       <aside
         className={`${dynamicTheme.bgColor} ${
           dynamicTheme.textColor
-        } relative text-base rounded-bl-md h-full w-full overflow-auto py-4 pl-4 bg-blue-500
+        } lg:relative z-[995] text-base rounded-bl-md lg:h-screen w-full overflow-hidden py-4  bg-blue-500
 
         ${
-          openSidebar ? 'translate-x-0 fixed top-16' : '-translate-x-full'
+          openSidebar ? 'translate-x-0 fixed top-16 bottom-0' : '-translate-x-full'
         } lg:translate-x-0`}
       >
         {/* 🔹 Logo Section */}
-        <div className="flex items-center justify-center mb-6">
-          <Image
+        <div className="p-2 w-full flex items-center justify-center mb-6">
+{/*           <Image
             src="/logo.png" // এখানে তোমার logo path দিতে হবে
             alt="Logo"
             width={140}
             height={40}
             className="object-contain"
-          />
+          /> */}
+          SAZIN CONSTRACTION
         </div>
 
         {/* 🔹 Sidebar Menu */}
-        <ul className="space-y-2">
+        <ul className="space-y-2 pl-4 h-full w-full overflow-auto pb-28">
           {items?.map((item) => (
             <li key={item.id}>
               {item?.categories?.length > 0 ? (

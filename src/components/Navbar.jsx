@@ -60,7 +60,7 @@ function Navbar() {
             alt="Profile"
             width={40}
             height={40}
-            className="rounded-full h-13 w-13 object-fill border-2 border-red-600 cursor-pointer"
+            className="rounded-full h-13 w-13 object-fill border-3 border-green-700 cursor-pointer"
           />
           </Link>
         </div>
