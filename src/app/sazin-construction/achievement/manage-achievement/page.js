@@ -35,10 +35,10 @@ export default function Page() {
     return () => observer.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  const toggleExpand = (index) => {
+  const toggleExpand = (id) => {
     setExpandedCards((prev) => ({
       ...prev,
-      [index]: !prev[index],
+      [id]: !prev[id],
     }));
   };
 
@@ -117,50 +117,91 @@ export default function Page() {
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {data?.pages.map((page, i) => (
                   <React.Fragment key={i}>
-                    {page?.data?.map((item, index) => (
-                      <tr
-                        key={index}
-                        className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200 group"
-                      >
-                        <td className="px-8 py-6 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                              {index + 1}
+                    {page?.data?.map((item, index) => {
+                      const isExpanded = expandedCards[item.id || index];
+                      const shouldTruncate = isLongDescription(
+                        item?.description
+                      );
+
+                      return (
+                        <tr
+                          key={item.id || index}
+                          className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200 group"
+                        >
+                          <td className="px-8 py-6 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                {index + 1}
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="px-8 py-6">
-                          <div className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                            {item?.achievement}
-                          </div>
-                        </td>
-                        <td className="px-8 py-6">
-                          <div className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                            {item?.description || (
-                              <span className="text-gray-400 dark:text-gray-500 italic">
-                                No description provided
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-8 py-6">
-                          <div className="flex justify-center gap-3">
-                            <button
-                              className="p-3 rounded-xl bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 transition-all duration-200 transform hover:scale-105 shadow-sm"
-                              title="Edit"
-                            >
-                              <FaEdit size={18} />
-                            </button>
-                            <button
-                              className="p-3 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-200 transform hover:scale-105 shadow-sm"
-                              title="Delete"
-                            >
-                              <FaTrash size={18} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                          <td className="px-8 py-6">
+                            <div className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                              {item?.achievement}
+                            </div>
+                          </td>
+                          <td className="px-8 py-6">
+                            <div className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                              {item?.description ? (
+                                <div>
+                                  <p
+                                    className={
+                                      shouldTruncate && !isExpanded
+                                        ? 'line-clamp-2'
+                                        : ''
+                                    }
+                                  >
+                                    {isExpanded
+                                      ? item.description
+                                      : truncateDescription(item.description)}
+                                  </p>
+                                  {shouldTruncate && (
+                                    <button
+                                      onClick={() =>
+                                        toggleExpand(item.id || index)
+                                      }
+                                      className="mt-2 flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors font-medium text-sm"
+                                    >
+                                      {isExpanded ? (
+                                        <>
+                                          <FaChevronUp size={12} />
+                                          Show Less
+                                        </>
+                                      ) : (
+                                        <>
+                                          <FaChevronDown size={12} />
+                                          Read More
+                                        </>
+                                      )}
+                                    </button>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-gray-400 dark:text-gray-500 italic">
+                                  No description provided
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-8 py-6">
+                            <div className="flex justify-center gap-3">
+                              <button
+                                className="p-3 rounded-xl bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 transition-all duration-200 transform hover:scale-105 shadow-sm"
+                                title="Edit"
+                              >
+                                <FaEdit size={18} />
+                              </button>
+                              <button
+                                className="p-3 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-200 transform hover:scale-105 shadow-sm"
+                                title="Delete"
+                              >
+                                <FaTrash size={18} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </React.Fragment>
                 ))}
               </tbody>
@@ -173,12 +214,12 @@ export default function Page() {
           {data?.pages.map((page, i) => (
             <React.Fragment key={i}>
               {page?.data?.map((item, index) => {
-                const isExpanded = expandedCards[index];
+                const isExpanded = expandedCards[item.id || index];
                 const shouldTruncate = isLongDescription(item?.description);
 
                 return (
                   <div
-                    key={index}
+                    key={item.id || index}
                     className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300"
                   >
                     <div className="flex items-start justify-between mb-4">
@@ -209,35 +250,43 @@ export default function Page() {
                     </div>
 
                     <div className="mt-4">
-                      <p
-                        className={`text-gray-600 dark:text-gray-400 leading-relaxed ${
-                          shouldTruncate && !isExpanded ? 'line-clamp-3' : ''
-                        }`}
-                      >
-                        {item?.description || (
-                          <span className="text-gray-400 dark:text-gray-500 italic">
-                            No description provided
-                          </span>
-                        )}
-                      </p>
+                      {item?.description ? (
+                        <div>
+                          <p
+                            className={`text-gray-600 dark:text-gray-400 leading-relaxed ${
+                              shouldTruncate && !isExpanded
+                                ? 'line-clamp-3'
+                                : ''
+                            }`}
+                          >
+                            {isExpanded
+                              ? item.description
+                              : truncateDescription(item.description)}
+                          </p>
 
-                      {shouldTruncate && (
-                        <button
-                          onClick={() => toggleExpand(index)}
-                          className="mt-3 flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors font-medium text-sm"
-                        >
-                          {isExpanded ? (
-                            <>
-                              <FaChevronUp size={12} />
-                              Show Less
-                            </>
-                          ) : (
-                            <>
-                              <FaChevronDown size={12} />
-                              Read More
-                            </>
+                          {shouldTruncate && (
+                            <button
+                              onClick={() => toggleExpand(item.id || index)}
+                              className="mt-3 flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors font-medium text-sm"
+                            >
+                              {isExpanded ? (
+                                <>
+                                  <FaChevronUp size={12} />
+                                  Show Less
+                                </>
+                              ) : (
+                                <>
+                                  <FaChevronDown size={12} />
+                                  Read More
+                                </>
+                              )}
+                            </button>
                           )}
-                        </button>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 dark:text-gray-500 italic">
+                          No description provided
+                        </span>
                       )}
                     </div>
                   </div>
