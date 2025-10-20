@@ -1,7 +1,7 @@
-'use client'
-import React, { useRef, useEffect } from "react";
-import DynamicQuery from "../../components/DynamicQuery";
-import { FaEdit, FaTrash } from "react-icons/fa";
+'use client';
+import React, { useEffect, useRef, useState } from 'react';
+import { FaEdit, FaInfoCircle, FaTrash, FaUserTie } from 'react-icons/fa';
+import DynamicQuery from '../../components/DynamicQuery';
 
 export default function Page() {
   const {
@@ -10,8 +10,8 @@ export default function Page() {
     hasNextPage,
     isFetchingNextPage,
     status,
-    refetch
-  } = DynamicQuery("client");
+    refetch,
+  } = DynamicQuery('client');
 
   useEffect(() => {
     refetch();
@@ -27,98 +27,261 @@ export default function Page() {
           fetchNextPage();
         }
       },
-      { root: null, rootMargin: "0px", threshold: 0.1 }
+      { root: null, rootMargin: '0px', threshold: 0.1 }
     );
     observer.observe(loadMoreRef.current);
     return () => observer.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  if (status === "pending") return <p className="text-center">Loading...</p>;
-  if (status === "error") return <p className="text-center">Error fetching clients!</p>;
+  if (status === 'pending')
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+        <div className="animate-pulse text-center">
+          <div className="w-16 h-16 bg-blue-500 rounded-full mx-auto mb-4"></div>
+          <p className="text-lg font-medium text-gray-600 dark:text-gray-400">
+            Loading clients...
+          </p>
+        </div>
+      </div>
+    );
+
+  if (status === 'error')
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+        <div className="text-center p-8 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-red-200 dark:border-red-800">
+          <div className="w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FaInfoCircle className="text-red-500 text-2xl" />
+          </div>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+            Error Loading Clients
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            There was an issue fetching the client data.
+          </p>
+          <button
+            onClick={() => refetch()}
+            className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+
+  // 👇 Read More component
+  const ReadMore = ({ text }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+    const limit = 120; // কতগুলো অক্ষর পর্যন্ত দেখাবে
+    if (!text) return null;
+    if (text.length <= limit) return <p>{text}</p>;
+    return (
+      <p>
+        {isExpanded ? text : text.slice(0, limit) + '...'}
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="text-blue-600 dark:text-blue-400 ml-1 font-medium hover:underline"
+        >
+          {isExpanded ? 'Show Less' : 'Read More'}
+        </button>
+      </p>
+    );
+  };
 
   return (
-    <div className="w-full p-4">
-      {/* Desktop Table */}
-      <div className="hidden md:block overflow-x-auto border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-sm">
-        <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-700">
-          <thead className="bg-neutral-100 dark:bg-neutral-800">
-            <tr>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">#</th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Name</th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Email</th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Phone</th>
-              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Company</th>
-              <th className="px-4 py-2 text-center text-sm font-semibold text-gray-700 dark:text-gray-300">Actions</th>
-            </tr>
-          </thead>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4 lg:p-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">
+            Client Portfolio
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto">
+            Explore our valued partners and clients who trust us with their
+            business needs and collaborations.
+          </p>
+        </div>
 
-          <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700 bg-white dark:bg-neutral-900">
-            {data?.pages.map((page, i) => (
-              <React.Fragment key={i}>
-                {page?.data?.map((client, index) => (
-                  <tr key={index} className="hover:bg-neutral-50 dark:hover:bg-neutral-800 transition">
-                    <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{index + 1}</td>
-                    <td className="px-4 py-2 text-gray-800 dark:text-gray-200">{client?.name || client?.partner}</td>
-                    <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{client?.email || "—"}</td>
-                    <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{client?.phone || "—"}</td>
-                    <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{client?.company || "—"}</td>
-                    <td className="px-4 py-2 flex justify-center gap-3">
-                      <button className="p-2 rounded-full hover:bg-green-100 text-green-600" title="Edit">
+        {/* Desktop Table */}
+        <div className="hidden lg:block bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden mb-8">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gradient-to-r from-blue-500 to-purple-500">
+                <tr>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-white uppercase tracking-wider">
+                    #
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-white uppercase tracking-wider">
+                    <div className="flex items-center gap-2">
+                      <FaUserTie />
+                      Partner & Client
+                    </div>
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-white uppercase tracking-wider">
+                    Description & Details
+                  </th>
+                  <th className="px-6 py-4 text-center text-sm font-semibold text-white uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                {data?.pages.map((page, i) => (
+                  <React.Fragment key={i}>
+                    {page?.data?.map((item, index) => (
+                      <tr
+                        key={index}
+                        className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all duration-200 group"
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                              {index + 1}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                              <FaUserTie className="text-blue-600 dark:text-blue-400" />
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-gray-900 dark:text-white text-lg">
+                                {item?.partner || 'Unnamed Partner'}
+                              </h3>
+                              <p className="text-sm text-blue-600 dark:text-blue-400">
+                                Active Partner
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="max-w-md text-gray-700 dark:text-gray-300 leading-relaxed">
+                            <ReadMore
+                              text={
+                                item?.description ||
+                                'No description provided for this client partnership. This section would typically contain detailed information about the collaboration, services provided, and key achievements in the partnership.'
+                              }
+                            />
+                            <div className="flex gap-2 mt-2">
+                              <span className="inline-block px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded-full">
+                                Verified
+                              </span>
+                              <span className="inline-block px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded-full">
+                                Partner
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex justify-center gap-2">
+                            <button
+                              className="p-3 rounded-xl bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 hover:scale-105 transition-all duration-200 shadow-sm"
+                              title="Edit Client"
+                            >
+                              <FaEdit size={18} />
+                            </button>
+                            <button
+                              className="p-3 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 hover:scale-105 transition-all duration-200 shadow-sm"
+                              title="Delete Client"
+                            >
+                              <FaTrash size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Mobile Responsive Cards */}
+        <div className="lg:hidden space-y-4">
+          {data?.pages.map((page, i) => (
+            <React.Fragment key={i}>
+              {page?.data?.map((item, index) => (
+                <div
+                  key={index}
+                  className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg border border-slate-200 dark:border-slate-700 hover:shadow-xl transition-all duration-300"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center text-white font-bold text-lg">
+                        {index + 1}
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-gray-900 dark:text-white text-xl">
+                          {item?.partner || 'Unnamed Partner'}
+                        </h3>
+                        <p className="text-blue-600 dark:text-blue-400 text-sm">
+                          Trusted Partner
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
+                        title="Edit"
+                      >
                         <FaEdit size={16} />
                       </button>
-                      <button className="p-2 rounded-full hover:bg-red-100 text-red-600" title="Delete">
+                      <button
+                        className="p-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                        title="Delete"
+                      >
                         <FaTrash size={16} />
                       </button>
-                    </td>
-                  </tr>
-                ))}
-              </React.Fragment>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                    </div>
+                  </div>
 
-      {/* Mobile Responsive Cards */}
-      <div className="md:hidden space-y-4">
-        {data?.pages.map((page, i) => (
-          <React.Fragment key={i}>
-            {page?.data?.map((client, index) => (
-              <div
-                key={index}
-                className="border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 rounded-lg p-4 shadow-sm"
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-base font-semibold text-gray-800 dark:text-gray-200">
-                    {client?.name || client?.partner}
-                  </h3>
-                  <div className="flex gap-2">
-                    <button className="p-2 rounded-full hover:bg-green-100 text-green-600" title="Edit">
-                      <FaEdit size={14} />
-                    </button>
-                    <button className="p-2 rounded-full hover:bg-red-100 text-red-600" title="Delete">
-                      <FaTrash size={14} />
-                    </button>
+                  <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4 text-gray-700 dark:text-gray-300 leading-relaxed">
+                    <ReadMore
+                      text={
+                        item?.description ||
+                        'No description provided for this client partnership. This section would typically contain detailed information about the collaboration, services provided, and key achievements in the partnership.'
+                      }
+                    />
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    <span className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-sm rounded-full font-medium">
+                      Verified Partner
+                    </span>
+                    <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full font-medium">
+                      Collaboration
+                    </span>
+                    <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 text-sm rounded-full font-medium">
+                      Active
+                    </span>
                   </div>
                 </div>
-                <p className="text-sm text-gray-700 dark:text-gray-400">
-                  <span className="font-medium">Email:</span> {client?.email || "—"}
-                </p>
-                <p className="text-sm text-gray-700 dark:text-gray-400">
-                  <span className="font-medium">Phone:</span> {client?.phone || "—"}
-                </p>
-                <p className="text-sm text-gray-700 dark:text-gray-400">
-                  <span className="font-medium">Company:</span> {client?.company || "—"}
-                </p>
-              </div>
-            ))}
-          </React.Fragment>
-        ))}
-      </div>
+              ))}
+            </React.Fragment>
+          ))}
+        </div>
 
-      {/* Load more / end indicator */}
-      <div ref={loadMoreRef} className="w-full text-center mt-4">
-        {isFetchingNextPage && <p className="text-blue-500">Loading more...</p>}
-        {!hasNextPage && <p className="text-gray-500">No more clients</p>}
+        {/* Load more / end indicator */}
+        <div ref={loadMoreRef} className="w-full text-center mt-8">
+          {isFetchingNextPage && (
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700">
+              <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-gray-700 dark:text-gray-300 font-medium">
+                Loading more clients...
+              </span>
+            </div>
+          )}
+          {!hasNextPage && data?.pages[0]?.data?.length > 0 && (
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl shadow-lg">
+              <FaInfoCircle />
+              <span className="font-medium">
+                All clients loaded successfully
+              </span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
