@@ -39,7 +39,13 @@ function ProductForm({onSubmit}) {
     watch,
     reset,
     formState: { errors },
-  } = useForm();
+  } = useForm(
+    {
+    criteriaMode: 'all',
+    shouldUnregister: true,
+    mode: 'onChange',
+    }
+  );
   const [imagePreview, setImagePreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const watchImage = watch('image');

@@ -41,7 +41,7 @@ function Sidebar() {
             height={40}
             className="object-contain"
           /> */}
-          SAZIN CONSTRACTION
+          SAZIN CONSTRACTION LTD.
         </div>
 
         {/* 🔹 Sidebar Menu */}
