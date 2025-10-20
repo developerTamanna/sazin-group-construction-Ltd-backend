@@ -16,7 +16,7 @@ const onSubmit = async(data) => {
       return response
   }catch(error){
       throw error
-    }; 
+    };
 }
 function page() {
   return(
