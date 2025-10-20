@@ -5,6 +5,7 @@ import { useSidebar } from '@/context/SidebarContext';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import axiosInstance from '@/utils/axios';
+import { DangerousContentCheck, NumberValidationCheck } from '@/utils/custom-validation/CustomValidation';
 
 const option = [
   {
@@ -41,7 +42,13 @@ function ProductUpdate({data,setUpdateData,refetch }) {
     watch,
     reset,
     formState: { errors },
-  } = useForm();
+  } = useForm(
+    {
+    criteriaMode: 'all',
+    shouldUnregister: true,
+    mode: 'onChange',
+    }
+  );
 
   const [imagePreview, setImagePreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -137,7 +144,7 @@ function ProductUpdate({data,setUpdateData,refetch }) {
               </label>
               <input
                 type="text"
-                {...register('productName', { required: 'Product name is required' })}
+                {...register('productName', { required: 'Product name is required',...DangerousContentCheck })}
                 className={`w-full p-4 rounded-lg outline-none border ${dynamicTheme.formInput}`}
                 placeholder="Enter product name"
               />
@@ -153,7 +160,7 @@ function ProductUpdate({data,setUpdateData,refetch }) {
               </label>
               <input
                 type="text"
-                {...register('title', { required: 'Title is required' })}
+                {...register('title', { required: 'Title is required',...DangerousContentCheck })}
                 className={`w-full p-4 rounded-lg outline-none border ${dynamicTheme.formInput}`}
                 placeholder="Enter title"
               />
@@ -168,7 +175,7 @@ function ProductUpdate({data,setUpdateData,refetch }) {
                 Description
               </label>
               <textarea
-                {...register('description')}
+                {...register('description',{...DangerousContentCheck})}
                 className={`w-full p-4 rounded-lg outline-none border ${dynamicTheme.formInput}`}
                 placeholder="Enter description"
                 rows={4}
@@ -240,7 +247,7 @@ function ProductUpdate({data,setUpdateData,refetch }) {
               </label>
               <input
                 type="number"
-                {...register('price', { required: 'Price is required', min: 1 })}
+                {...register('price', { required: 'Price is required',...NumberValidationCheck })}
                 className={`w-full p-4 rounded-lg outline-none border ${dynamicTheme.formInput}`}
                 placeholder="Enter price"
               />
@@ -265,6 +272,7 @@ function ProductUpdate({data,setUpdateData,refetch }) {
                     {...register('discountPercent', {
                       min: { value: 1, message: 'Minimum 1%' },
                       max: { value: 100, message: 'Maximum 100%' },
+                      ...NumberValidationCheck
                     })}
                     className={`w-full p-4 rounded-lg outline-none border ${dynamicTheme.formInput}`}
                     placeholder="Enter discount percentage"

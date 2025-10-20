@@ -1,14 +1,19 @@
 'use client'
-import React, { useRef, useEffect, use } from "react";
+import React, { useRef, useEffect, use, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchProducts } from "./FetchFunction";
-import { useSidebar } from '@/context/SidebarContext';
 import Image from 'next/image';
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import { FiSearch } from "react-icons/fi";
+import DeleteProject from "./DeleteProject";
+import UpdateProjectForm from "@/components/DynamicUpdateForm";
+import ViewProjectDetail from "./ViewProjectDetail";
 
-export default function DynamicTable({value,ky,th,isFeature}){
-  const { dynamicTheme } = useSidebar();
+export default function DynamicTable({value,ky,th,isFeature,path="project",fields}){
+  
+  const [updateData,setUpdateData]=useState(null);
+  const [viewData,setviewData]=useState(null);
+  
   const {
     data,
     fetchNextPage,
@@ -120,18 +125,21 @@ export default function DynamicTable({value,ky,th,isFeature}){
                     <td className="p-3 font-medium text-gray-700 text-center">{item?.feature?'Yes':"No"}</td>
                     <td className="p-3 flex items-center justify-center gap-3">
                       <button
+                        onClick={()=>setviewData(item)}
                         className="p-2 rounded-full hover:bg-blue-100 text-blue-600"
                         title="View"
                       >
                         <FaEye size={18} />
                       </button>
                       <button
-                        className="p-2 rounded-full hover:bg-green-100 text-green-600"
-                        title="Edit"
-                      >
+                         onClick={()=>setUpdateData({item,path,id:item._id,refetch,setUpdateData})}
+                         className="p-2 rounded-full hover:bg-green-100 text-green-600"
+                         title="Edit"
+                       >
                         <FaEdit size={18} />
                       </button>
                       <button
+                        onClick={()=>DeleteProject(item?._id,path,refetch)}
                         className="p-2 rounded-full hover:bg-red-100 text-red-600"
                         title="Delete"
                       >
@@ -146,7 +154,9 @@ export default function DynamicTable({value,ky,th,isFeature}){
         </table>
       </div>
     </div>
-  
+   
+    {updateData && <UpdateProjectForm updateData={updateData} fields={fields}></UpdateProjectForm>}
+    {viewData && <ViewProjectDetail project={viewData} setviewData={setviewData}></ViewProjectDetail>}
 
       {/* Sentinel element for IntersectionObserver */}
       <div ref={loadMoreRef} className=" w-full z-[999]  h-10 mt-5 text-center">

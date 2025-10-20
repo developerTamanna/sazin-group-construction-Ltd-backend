@@ -432,7 +432,7 @@ const ManageAdmin = () => {
         </div>
       </div>
 
-         { viewAdmin && <div className=" z-[1000]   fixed top-16 bottom-4 lg:left-[max(21%,284px)]   left-1 right-1 bg-gray-50 overflow-auto pb-10">
+         { viewAdmin && <div className=" z-[800]   fixed top-16 bottom-4 lg:left-[max(21%,284px)]   left-1 right-1 bg-gray-50 overflow-auto pb-10">
                  
                   <div className="relative h-48 bg-gradient-to-r from-red-600 to-red-800">
                     <button onClick={()=>setviewAdmin(null)} className='absolute cursor-pointer top-0 right-2 text-black text-4xl'>x</button>
