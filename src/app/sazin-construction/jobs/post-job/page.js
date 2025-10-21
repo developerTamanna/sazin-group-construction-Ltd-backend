@@ -16,7 +16,7 @@ const onSubmit=async(data) => {
   try {
     const response = await axiosInstance.post('/sazin-construction/addAction/add-job', data);
     return response;
-  } catch (error) { 
+  } catch (error) {
     throw error;
   }
 };
