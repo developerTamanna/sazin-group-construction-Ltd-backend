@@ -91,14 +91,14 @@ export default function Page() {
                           {index + 1}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white font-medium">
-                          {cert?.title}
+                          {cert?.certificateName}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          {cert?.image ? (
+                          {cert?.imageUrl ? (
                             <div className="flex items-center">
                               <img
-                                src={cert.image}
-                                alt={cert.title}
+                                src={cert.imageUrl}
+                                alt={cert.imageUrl}
                                 className="w-16 h-16 object-cover rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm"
                               />
                             </div>
