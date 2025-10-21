@@ -1,7 +1,12 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import React, { useEffect, useRef, useState } from 'react';
+import { FaEdit, FaInfoCircle, FaTrash } from 'react-icons/fa';
 import DynamicQuery from '../../components/DynamicQuery';
+import Loader from "@/components/Loader";
+import ErrorCard from "@/components/ErrorCard";
+import { DangerousContentCheck } from '@/utils/custom-validation/CustomValidation';
+import UpdateProjectForm from '@/components/DynamicUpdateForm';
+import DeleteProject from '../../components/DeleteProject';
 
 export default function Page() {
   const {
@@ -18,6 +23,22 @@ export default function Page() {
   }, [refetch]);
 
   const loadMoreRef = useRef();
+  const [updateData,setUpdateData]=useState(null);
+  const fields = [
+    {
+      name: 'certificateName',
+      placeholder: 'Certificate Name',
+      label: 'Certificate Name',
+      type: 'text',
+      rules: { required: 'Image is required', ...DangerousContentCheck },
+    },
+    {
+      name: 'image',
+      label: 'Certificate Image',
+      type: 'image',
+      rules: { required: 'Image is required' },
+    },
+  ];
 
   useEffect(() => {
     if (!loadMoreRef.current) return;
@@ -33,18 +54,14 @@ export default function Page() {
     return () => observer.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  if (status === 'pending')
+    if (status === 'pending')
     return (
-      <p className="text-center py-8 text-gray-600 dark:text-gray-400">
-        Loading...
-      </p>
+      <Loader type={"certifications"}></Loader>
     );
-  if (status === 'error')
-    return (
-      <p className="text-center py-8 text-red-600 dark:text-red-400">
-        Error fetching certificates!
-      </p>
-    );
+
+  if (status === "error") return (
+      <ErrorCard type={"certifications"} refetch={refetch}></ErrorCard>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-6 px-4 sm:px-6 lg:px-8">
@@ -111,12 +128,14 @@ export default function Page() {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex justify-center gap-2">
                             <button
+                              onClick={()=>setUpdateData({item:cert,path:"certificate",id:cert._id,refetch,setUpdateData})}
                               className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200 ease-in-out transform hover:scale-105"
                               title="Edit"
                             >
                               <FaEdit size={16} />
                             </button>
                             <button
+                              onClick={()=>DeleteProject(cert?._id,"certificate",refetch)}
                               className="p-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors duration-200 ease-in-out transform hover:scale-105"
                               title="Delete"
                             >
@@ -153,12 +172,14 @@ export default function Page() {
                     </div>
                     <div className="flex gap-2 ml-4">
                       <button
+                        onClick={()=>setUpdateData({item:cert,path:"certificate",id:cert._id,refetch,setUpdateData})}
                         className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
                         title="Edit"
                       >
                         <FaEdit size={14} />
                       </button>
                       <button
+                       onClick={()=>DeleteProject(cert?._id,"certificate",refetch)}
                         className="p-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors duration-200"
                         title="Delete"
                       >
@@ -190,21 +211,28 @@ export default function Page() {
           ))}
         </div>
 
-        {/* Load more / End indicator */}
-        <div ref={loadMoreRef} className="w-full text-center mt-8 py-4">
+        {/* Load more / end indicator */}
+        <div ref={loadMoreRef} className="w-full text-center mt-8">
           {isFetchingNextPage && (
-            <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400">
-              <div className="animate-spin rounded-full h-5 w-5 border-2 border-blue-600 border-t-transparent"></div>
-              <p>Loading more certificates...</p>
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700">
+              <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-gray-700 dark:text-gray-300 font-medium">
+                Loading more certifications...
+              </span>
             </div>
           )}
           {!hasNextPage && data?.pages[0]?.data?.length > 0 && (
-            <p className="text-gray-500 dark:text-gray-400 text-sm py-4">
-              You've reached the end of the list
-            </p>
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl shadow-lg">
+              <FaInfoCircle />
+              <span className="font-medium">
+                All certifications loaded successfully
+              </span>
+            </div>
           )}
         </div>
       </div>
+
+      {updateData && <UpdateProjectForm updateData={updateData} fields={fields}></UpdateProjectForm>}
     </div>
   );
 }

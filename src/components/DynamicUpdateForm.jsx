@@ -110,7 +110,7 @@ useEffect(() => {
         className={`w-full h-full max-w-3xl flex flex-col gap-8 pb-4 ${dynamicTheme.formBg} rounded-xl shadow-lg overflow-auto`}
       >
       <div className='flex item-center justify-between relative w-full cursor-pointer sticky z-[999] top-0 bg-gray-400 p-4'>
-        <p>Update Product</p> 
+        <p>{`Update ${path}`}</p> 
         <button
           onClick={()=>setUpdateData(null)}
           className='cursor-pointer text-red-600 text-2xl font-bold'>
@@ -248,7 +248,7 @@ useEffect(() => {
               (isSubmitting ) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
             } w-full py-4 rounded-lg text-white font-semibold transition ${dynamicTheme.formButton}`}
           >
-            {isSubmitting ? 'Updating...' : 'Update Project'}
+            {isSubmitting ? 'Updating...' : `Update ${path}`}
           </button>
         </div>
       </form>

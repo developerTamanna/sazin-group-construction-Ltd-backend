@@ -188,13 +188,6 @@ const Sidebarlist={
        ]
      },
     {
-      id:10 , title: 'Gallery', icon: <MdShoppingCart />, path: '/sazin-construction/gallery',
-      categories:[
-          {id:1, title:"Add Image", icon:<FaTools/>, path:'/sazin-construction/gallery/add-image'},
-          {id:2, title:"Manage Gallery", icon:<FaTools/>, path:'/sazin-construction/gallery/manage-gallery'},
-      ]
-    },
-    {
       id:11, title: 'Equipment', icon: <MdShoppingCart />, path: '/sazin-construction/equipment',
       categories:[
           {id:1, title:"Add Equipment", icon:<FaTools/>, path:'/sazin-construction/equipment/add-equipment'},

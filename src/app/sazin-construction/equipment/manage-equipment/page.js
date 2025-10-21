@@ -1,7 +1,13 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import DynamicQuery from '../../components/DynamicQuery';
 import Card from './component/Card';
+import Loader from "@/components/Loader";
+import ErrorCard from "@/components/ErrorCard";
+import { FaInfoCircle } from 'react-icons/fa';
+import UpdateProjectForm from '@/components/DynamicUpdateForm';
+import { DangerousContentCheck } from '@/utils/custom-validation/CustomValidation';
+import DeleteProject from '../../components/DeleteProject';
 
 export default function Page() {
   const {
@@ -18,6 +24,11 @@ export default function Page() {
   }, [refetch]);
 
   const loadMoreRef = useRef();
+
+  const [updateData,setUpdateData]=useState(null);
+  const fields = [
+      { name: "equipment", placeholder: "Equipment or Capability Name", label: "Equipment or Capability Name", type: "text", rules: { required: "Equipment or Capability Name is required", ...DangerousContentCheck } },
+    ];
 
   useEffect(() => {
     if (!loadMoreRef.current) return;
@@ -38,52 +49,14 @@ export default function Page() {
     return () => observer.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  if (status === 'pending')
+    if (status === 'pending')
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-lg font-medium text-gray-700 dark:text-gray-300">
-            Loading Equipment...
-          </p>
-        </div>
-      </div>
+      <Loader type={"equipments"}></Loader>
     );
 
-  if (status === 'error')
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-8 max-w-md">
-          <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg
-              className="w-8 h-8 text-red-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
-              />
-            </svg>
-          </div>
-          <h3 className="text-xl font-semibold text-red-800 dark:text-red-300 mb-2">
-            Loading Error
-          </h3>
-          <p className="text-red-600 dark:text-red-400">
-            Failed to fetch equipment data. Please try again.
-          </p>
-          <button
-            onClick={() => refetch()}
-            className="mt-4 px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors duration-200"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
+  if (status === "error") return (
+      <ErrorCard type={"equipments"} refetch={refetch}></ErrorCard>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-neutral-900 py-8">
@@ -105,45 +78,28 @@ export default function Page() {
           {data?.pages.map((page, i) => (
             <React.Fragment key={i}>
               {page?.data?.map((item, index) => (
-                <Card key={`${i}-${index}`} post={item} />
+                <Card key={`${i}-${index}`} post={item} dlt={()=>DeleteProject(item?._id,"equipment",refetch)} update={()=>setUpdateData({item,path:"equipment",id:item._id,refetch,setUpdateData})}/>
               ))}
             </React.Fragment>
           ))}
         </div>
 
-        {/* Loading and End States */}
-        <div ref={loadMoreRef} className="w-full mt-8 py-6 text-center">
+        {/* Load more / end indicator */}
+        <div ref={loadMoreRef} className="w-full text-center mt-8">
           {isFetchingNextPage && (
-            <div className="flex flex-col items-center justify-center space-y-3">
-              <div className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-              <p className="text-blue-600 dark:text-blue-400 font-medium">
-                Loading more equipment...
-              </p>
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700">
+              <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-gray-700 dark:text-gray-300 font-medium">
+                Loading more equipments...
+              </span>
             </div>
           )}
           {!hasNextPage && data?.pages[0]?.data?.length > 0 && (
-            <div className="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-neutral-700">
-              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
-                <svg
-                  className="w-6 h-6 text-green-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </div>
-              <p className="text-gray-600 dark:text-gray-400 font-medium">
-                You've reached the end of the catalog
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
-                No more equipment to load
-              </p>
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl shadow-lg">
+              <FaInfoCircle />
+              <span className="font-medium">
+                All equipments loaded successfully
+              </span>
             </div>
           )}
         </div>
@@ -176,6 +132,8 @@ export default function Page() {
           </p>
         </div>
       )}
+
+          {updateData && <UpdateProjectForm updateData={updateData} fields={fields}></UpdateProjectForm>}
     </div>
   );
 }

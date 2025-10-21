@@ -2,11 +2,10 @@
 import React from 'react'
 import DynamicForm from '@/components/DynamicForm'
 import axiosInstance from '@/utils/axios';
-import { DangerousContentCheck, DateValidationCheck } from '@/utils/custom-validation/CustomValidation';
-import { numberValidation } from '@/utils/built-in-validation/built-in-validation';
+import { DangerousContentCheck, DateValidationCheck, NumberValidationCheck } from '@/utils/custom-validation/CustomValidation';
 const fields = [
   { name: "job", placeholder: "Enter job title", label: "Job Title", type: "text", rules: { required: "Job Name is required", ...DangerousContentCheck } },
-  { name:'salary', placeholder: "Enter job salary", label: "Salary", type: "number", rules: { required: "Job Salary is required", min: { value: 0, message: "Salary must be a positive number" }, ...numberValidation } },
+  { name:'salary', placeholder: "Enter job salary", label: "Salary", type: "number", rules: { required: "Job Salary is required", min: { value: 0, message: "Salary must be a positive number" }, ...NumberValidationCheck } },
   { name: "location", placeholder: "Enter job location", label: "Job Location", type: "text", rules: { required: "Job Location is required", ...DangerousContentCheck } },
   { name: "deadline", label: "Job Deadline", type: "date", rules: { required: "Job Deadline is required", ...DateValidationCheck } },
   { name: 'jobType', placeholder: "Enter job type", label: "Job Type", type: "select", options: ["Full-time", "Part-time", 'Hybrid', "Contract"], rules: { required: "Job Type is required", ...DangerousContentCheck } },

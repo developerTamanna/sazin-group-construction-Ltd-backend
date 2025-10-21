@@ -1,7 +1,13 @@
 'use client'
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import Card from './component/Card'
 import DynamicQuery from "../../components/DynamicQuery";
+import Loader from "@/components/Loader";
+import ErrorCard from "@/components/ErrorCard";
+import { FaInfoCircle } from "react-icons/fa";
+import UpdateProjectForm from "@/components/DynamicUpdateForm";
+import { DangerousContentCheck } from "@/utils/custom-validation/CustomValidation";
+import DeleteProject from "../../components/DeleteProject";
 
 export default function Page() {
   const {
@@ -19,6 +25,11 @@ export default function Page() {
 
   const loadMoreRef = useRef();
 
+    const [updateData,setUpdateData]=useState(null);
+    const fields = [
+      { name: "service", placeholder: "Enter service name", label: "Service Name", type: "text", rules: { required: "Service Name is required", ...DangerousContentCheck } },
+      {name: "description", placeholder: "Enter service description", label: "Service Description", type: "textarea", rules: { required: "Service Description is required", ...DangerousContentCheck } },
+    ];
   useEffect(() => {
     if (!loadMoreRef.current) return;
     const observer = new IntersectionObserver(
@@ -38,34 +49,13 @@ export default function Page() {
     return () => observer.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  if (status === "pending") return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-neutral-900 dark:to-neutral-800">
-      <div className="text-center">
-        <div className="w-20 h-20 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">Loading Services</h2>
-        <p className="text-gray-600 dark:text-gray-400">Please wait while we fetch our services</p>
-      </div>
-    </div>
-  );
+  if (status === 'pending')
+    return (
+      <Loader type={"services"}></Loader>
+    );
 
   if (status === "error") return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-neutral-900 dark:to-neutral-800">
-      <div className="text-center bg-white dark:bg-neutral-800 rounded-3xl shadow-xl border border-gray-200 dark:border-neutral-700 p-8 max-w-md mx-4">
-        <div className="w-20 h-20 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
-          <svg className="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-          </svg>
-        </div>
-        <h3 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-3">Connection Error</h3>
-        <p className="text-gray-600 dark:text-gray-400 mb-6">We're unable to load services at the moment. Please check your connection and try again.</p>
-        <button
-          onClick={() => refetch()}
-          className="px-8 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium"
-        >
-          Try Again
-        </button>
-      </div>
-    </div>
+      <ErrorCard type={"services"} refetch={refetch}></ErrorCard>
   );
 
   return (
@@ -89,36 +79,29 @@ export default function Page() {
             <React.Fragment key={i}>
               {page?.data?.map((item, index) => (
                 <div key={`${i}-${index}`} className="transform hover:scale-105 transition-all duration-300">
-                  <Card post={item} />
+                  <Card post={item} update={()=>setUpdateData({item,path:"service",id:item._id,refetch,setUpdateData})} dlt={()=>DeleteProject(item?._id,"service",refetch)}/>
                 </div>
               ))}
             </React.Fragment>
           ))}
         </div>
 
-        {/* Loading and End States */}
-        <div
-          ref={loadMoreRef}
-          className="w-full mt-12 py-8 text-center"
-        >
+        {/* Load more / end indicator */}
+        <div ref={loadMoreRef} className="w-full text-center mt-8">
           {isFetchingNextPage && (
-            <div className="flex flex-col items-center justify-center space-y-4 bg-white dark:bg-neutral-800 rounded-2xl p-8 shadow-lg border border-gray-200 dark:border-neutral-700">
-              <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-              <div>
-                <p className="text-lg font-semibold text-blue-600 dark:text-blue-400 mb-1">Loading More Services</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Please wait while we fetch additional services</p>
-              </div>
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700">
+              <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-gray-700 dark:text-gray-300 font-medium">
+                Loading more services...
+              </span>
             </div>
           )}
           {!hasNextPage && data?.pages[0]?.data?.length > 0 && (
-            <div className="bg-white dark:bg-neutral-800 rounded-2xl p-8 shadow-lg border border-gray-200 dark:border-neutral-700">
-              <div className="w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">All Services Loaded</h3>
-              <p className="text-gray-600 dark:text-gray-400">You've reached the end of our service catalog</p>
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl shadow-lg">
+              <FaInfoCircle />
+              <span className="font-medium">
+                All services loaded successfully
+              </span>
             </div>
           )}
         </div>
@@ -144,6 +127,8 @@ export default function Page() {
           </button>
         </div>
       )}
+
+      {updateData && <UpdateProjectForm updateData={updateData} fields={fields}></UpdateProjectForm>}
     </div>
   );
 }

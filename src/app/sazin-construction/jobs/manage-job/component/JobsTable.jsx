@@ -1,4 +1,8 @@
 'use client';
+import DeleteProject from '@/app/sazin-construction/components/DeleteProject';
+import UpdateProjectForm from '@/components/DynamicUpdateForm';
+import { DangerousContentCheck, DateValidationCheck, NumberValidationCheck } from '@/utils/custom-validation/CustomValidation';
+import { useState } from 'react';
 import {
   FaBriefcase,
   FaCalendarAlt,
@@ -9,7 +13,16 @@ import {
   FaTrash,
 } from 'react-icons/fa';
 
-export default function JobsTable({ jobs }) {
+export default function JobsTable({ jobs,refetch }) {
+    const [updateData,setUpdateData]=useState(null);
+    const fields = [
+      { name: "job", placeholder: "Enter job title", label: "Job Title", type: "text", rules: { required: "Job Name is required", ...DangerousContentCheck } },
+      { name:'salary', placeholder: "Enter job salary", label: "Salary", type: "number", rules: { required: "Job Salary is required", min: { value: 0, message: "Salary must be a positive number" }, ...NumberValidationCheck } },
+      { name: "location", placeholder: "Enter job location", label: "Job Location", type: "text", rules: { required: "Job Location is required", ...DangerousContentCheck } },
+      { name: "deadline", label: "Job Deadline", type: "date", rules: { required: "Job Deadline is required", ...DateValidationCheck } },
+      { name: 'jobType', placeholder: "Enter job type", label: "Job Type", type: "select", options: ["Full-time", "Part-time", 'Hybrid', "Contract"], rules: { required: "Job Type is required", ...DangerousContentCheck } },
+       {name: "description", placeholder: "Enter job description", label: "Job Description", type: "textarea", rules: { required: "Job Description is required", ...DangerousContentCheck } },
+    ];
   return (
     <div className="w-full space-y-6">
       {/* Desktop Table */}
@@ -121,12 +134,14 @@ export default function JobsTable({ jobs }) {
                           <FaEye size={18} />
                         </button>
                         <button
+                          onClick={()=>setUpdateData({item:job,path:"job",id:job._id,refetch,setUpdateData})}
                           className="p-3 rounded-xl bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 hover:scale-105 transition-all duration-200 shadow-sm group/edit"
                           title="Edit Job"
                         >
                           <FaEdit size={18} />
                         </button>
                         <button
+                          onClick={()=>DeleteProject(job?._id,"job",refetch)}
                           className="p-3 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 hover:scale-105 transition-all duration-200 shadow-sm group/delete"
                           title="Delete Job"
                         >
@@ -232,6 +247,7 @@ export default function JobsTable({ jobs }) {
                   <span className="font-medium">View</span>
                 </button>
                 <button
+                  onClick={()=>setUpdateData({item:job,path:"job",id:job._id,refetch,setUpdateData})}
                   className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors duration-200"
                   title="Edit Job"
                 >
@@ -239,6 +255,7 @@ export default function JobsTable({ jobs }) {
                   <span className="font-medium">Edit</span>
                 </button>
                 <button
+                  onClick={()=>DeleteProject(job?._id,"certificate",refetch)}
                   className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors duration-200"
                   title="Delete Job"
                 >
@@ -262,6 +279,8 @@ export default function JobsTable({ jobs }) {
           </div>
         )}
       </div>
+
+      {updateData && <UpdateProjectForm updateData={updateData} fields={fields}></UpdateProjectForm>}
     </div>
   );
 }

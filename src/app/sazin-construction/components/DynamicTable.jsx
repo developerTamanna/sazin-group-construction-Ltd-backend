@@ -3,11 +3,13 @@ import React, { useRef, useEffect, use, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchProducts } from "./FetchFunction";
 import Image from 'next/image';
-import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
+import { FaEye, FaEdit, FaTrash, FaInfoCircle } from "react-icons/fa";
 import { FiSearch } from "react-icons/fi";
 import DeleteProject from "./DeleteProject";
 import UpdateProjectForm from "@/components/DynamicUpdateForm";
 import ViewProjectDetail from "./ViewProjectDetail";
+import Loader from "@/components/Loader";
+import ErrorCard from "@/components/ErrorCard";
 
 export default function DynamicTable({value,ky,th,isFeature,path="project",fields}){
   
@@ -58,8 +60,14 @@ export default function DynamicTable({value,ky,th,isFeature,path="project",field
     return () => observer.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  if (status === "pending") return <p className="text-center">Loading...</p>;
-  if (status === "error") return <p className="text-center">Error fetching products!</p>;
+    if (status === 'pending')
+    return (
+      <Loader type={"projects"}></Loader>
+    );
+
+  if (status === "error") return (
+      <ErrorCard type={"projects"} refetch={refetch}></ErrorCard>
+  );
 
   return (
       <>
@@ -158,11 +166,25 @@ export default function DynamicTable({value,ky,th,isFeature,path="project",field
     {updateData && <UpdateProjectForm updateData={updateData} fields={fields}></UpdateProjectForm>}
     {viewData && <ViewProjectDetail project={viewData} setviewData={setviewData}></ViewProjectDetail>}
 
-      {/* Sentinel element for IntersectionObserver */}
-      <div ref={loadMoreRef} className=" w-full z-[999]  h-10 mt-5 text-center">
-        {isFetchingNextPage && <p className='text-red-500'>Loading more...</p>}
-        {!hasNextPage && <p className="text-gray-500">No more products</p>}
-      </div>
+        {/* Load more / end indicator */}
+        <div ref={loadMoreRef} className="w-full text-center mt-8">
+          {isFetchingNextPage && (
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700">
+              <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-gray-700 dark:text-gray-300 font-medium">
+                Loading more projects...
+              </span>
+            </div>
+          )}
+          {!hasNextPage && data?.pages[0]?.data?.length > 0 && (
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl shadow-lg">
+              <FaInfoCircle />
+              <span className="font-medium">
+                All projects loaded successfully
+              </span>
+            </div>
+          )}
+        </div>
     </>
   );
 }

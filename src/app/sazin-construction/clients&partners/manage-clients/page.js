@@ -2,6 +2,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FaEdit, FaInfoCircle, FaTrash, FaUserTie } from 'react-icons/fa';
 import DynamicQuery from '../../components/DynamicQuery';
+import Loader from "@/components/Loader";
+import ErrorCard from "@/components/ErrorCard";
+import DeleteProject from '../../components/DeleteProject';
+import { DangerousContentCheck } from '@/utils/custom-validation/CustomValidation';
+import UpdateProjectForm from '@/components/DynamicUpdateForm';
 
 export default function Page() {
   const {
@@ -18,7 +23,11 @@ export default function Page() {
   }, [refetch]);
 
   const loadMoreRef = useRef();
-
+  const [updateData,setUpdateData]=useState(null);
+  const fields = [
+    { name:"partner", placeholder: "Enter partner and client", label: "Partner And Client ", type: "text", rules: { required: "Partner And Client is required", ...DangerousContentCheck } },
+    { name:"description",placeholder: "Description", label: "description ", type: "textarea", rules: { required: "description is required", ...DangerousContentCheck } }
+  ];
   useEffect(() => {
     if (!loadMoreRef.current) return;
     const observer = new IntersectionObserver(
@@ -33,40 +42,14 @@ export default function Page() {
     return () => observer.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  if (status === 'pending')
+    if (status === 'pending')
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-        <div className="animate-pulse text-center">
-          <div className="w-16 h-16 bg-blue-500 rounded-full mx-auto mb-4"></div>
-          <p className="text-lg font-medium text-gray-600 dark:text-gray-400">
-            Loading clients...
-          </p>
-        </div>
-      </div>
+      <Loader type={"clients & partners"}></Loader>
     );
 
-  if (status === 'error')
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-        <div className="text-center p-8 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-red-200 dark:border-red-800">
-          <div className="w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto mb-4">
-            <FaInfoCircle className="text-red-500 text-2xl" />
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-            Error Loading Clients
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            There was an issue fetching the client data.
-          </p>
-          <button
-            onClick={() => refetch()}
-            className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
+  if (status === "error") return (
+      <ErrorCard type={"clients & partners"} refetch={refetch}></ErrorCard>
+  );
 
   // 👇 Read More component
   const ReadMore = ({ text }) => {
@@ -176,12 +159,14 @@ export default function Page() {
                         <td className="px-6 py-4">
                           <div className="flex justify-center gap-2">
                             <button
+                              onClick={()=>setUpdateData({item,path:"client",id:item._id,refetch,setUpdateData})}
                               className="p-3 rounded-xl bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 hover:scale-105 transition-all duration-200 shadow-sm"
                               title="Edit Client"
                             >
                               <FaEdit size={18} />
                             </button>
                             <button
+                             onClick={()=>DeleteProject(item?._id,"client",refetch)}
                               className="p-3 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 hover:scale-105 transition-all duration-200 shadow-sm"
                               title="Delete Client"
                             >
@@ -223,12 +208,14 @@ export default function Page() {
                     </div>
                     <div className="flex gap-2">
                       <button
+                        onClick={()=>setUpdateData({item,path:"client",id:item._id,refetch,setUpdateData})}
                         className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
                         title="Edit"
                       >
                         <FaEdit size={16} />
                       </button>
                       <button
+                        onClick={()=>DeleteProject(item?._id,"client",refetch)}
                         className="p-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
                         title="Delete"
                       >
@@ -283,6 +270,8 @@ export default function Page() {
           )}
         </div>
       </div>
+
+          {updateData && <UpdateProjectForm updateData={updateData} fields={fields}></UpdateProjectForm>}
     </div>
   );
 }

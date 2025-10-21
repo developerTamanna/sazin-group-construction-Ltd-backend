@@ -34,13 +34,13 @@ function Sidebar() {
       >
         {/* 🔹 Logo Section */}
         <div className="p-2 w-full flex items-center justify-center mb-6">
-{/*           <Image
-            src="/logo.png" // এখানে তোমার logo path দিতে হবে
+           <Image
+            src="/favicon.png" // এখানে তোমার logo path দিতে হবে
             alt="Logo"
             width={140}
             height={40}
-            className="object-contain"
-          /> */}
+            className="object-contain w-8 h-8 "
+          /> 
           SAZIN CONSTRACTION LTD.
         </div>
 
@@ -102,7 +102,7 @@ function Sidebar() {
         </ul>
         <button
           onClick={()=>logout()} 
-          className="absolute bottom-2 w-full text-center p-2 cursor-pointer">
+          className="absolute bottom-0 w-full text-center p-2 cursor-pointer bg-green-700">
             Logout
         </button>
       </aside>

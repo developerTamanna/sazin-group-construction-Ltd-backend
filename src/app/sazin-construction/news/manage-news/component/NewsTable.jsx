@@ -1,7 +1,49 @@
+import DeleteProject from '@/app/sazin-construction/components/DeleteProject';
+import UpdateProjectForm from '@/components/DynamicUpdateForm';
+import { DangerousContentCheck, DateValidationCheck } from '@/utils/custom-validation/CustomValidation';
 import { useState } from 'react';
 import { FaEdit, FaEye, FaTrash } from 'react-icons/fa';
 
-export default function NewsTable({ news }) {
+export default function NewsTable({ news,refetch }) {
+      const [updateData,setUpdateData]=useState(null);
+      const fields = [
+        {
+          name: 'newstitle',
+          placeholder: 'Enter news title',
+          label: 'News Title',
+          type: 'text',
+          rules: { required: 'News Title is required', ...DangerousContentCheck },
+        },
+        {
+          name: 'description',
+          placeholder: 'Enter news description',
+          label: 'News Description',
+          type: 'textarea',
+          rules: {
+            required: 'News Description is required',
+            ...DangerousContentCheck,
+          },
+        },
+        {
+          name: 'author',
+          placeholder: 'Enter news author',
+          label: 'News Author',
+          type: 'text',
+          rules: { required: 'News Author is required', ...DangerousContentCheck },
+        },
+        {
+          name: 'date',
+          label: 'News Date',
+          type: 'date',
+          rules: { required: 'News Date is required', ...DateValidationCheck },
+        },
+        {
+          name: 'image',
+          label: 'News Image',
+          type: 'image',
+          rules: { required: 'News Image is required' },
+        },
+      ];
   return (
     <div className="w-full overflow-hidden bg-white dark:bg-neutral-900 rounded-2xl shadow-lg border border-gray-100 dark:border-neutral-800">
       <div className="px-6 py-5 border-b border-gray-100 dark:border-neutral-800">
@@ -40,7 +82,7 @@ export default function NewsTable({ news }) {
 
           <tbody className="divide-y divide-gray-100 dark:divide-neutral-700">
             {news?.length > 0 ? (
-              news.map((item, index) => <NewsRow key={index} item={item} />)
+              news.map((item, index) => <NewsRow key={index} item={item} update={()=>setUpdateData({item,path:"news",id:item._id,refetch,setUpdateData})} dlt={()=>DeleteProject(item?._id,"news",refetch)} />)
             ) : (
               <tr>
                 <td colSpan="6" className="py-12 text-center">
@@ -73,12 +115,13 @@ export default function NewsTable({ news }) {
           </tbody>
         </table>
       </div>
+    {updateData && <UpdateProjectForm updateData={updateData} fields={fields}></UpdateProjectForm>}
     </div>
   );
 }
 
 // আলাদা component description সহ
-function NewsRow({ item }) {
+function NewsRow({ item,update,dlt }) {
   const [showFull, setShowFull] = useState(false);
 
   return (
@@ -145,18 +188,14 @@ function NewsRow({ item }) {
       <td className="py-4 px-6">
         <div className="flex items-center gap-2">
           <button
-            className="p-2.5 rounded-xl bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-400 hover:bg-blue-500 hover:text-white transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105"
-            title="View Details"
-          >
-            <FaEye size={16} />
-          </button>
-          <button
+           onClick={update}
             className="p-2.5 rounded-xl bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-400 hover:bg-green-500 hover:text-white transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105"
             title="Edit Content"
           >
             <FaEdit size={16} />
           </button>
           <button
+            onClick={dlt}
             className="p-2.5 rounded-xl bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-400 hover:bg-red-500 hover:text-white transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105"
             title="Delete Article"
           >

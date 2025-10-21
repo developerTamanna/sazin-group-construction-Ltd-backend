@@ -1,7 +1,12 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
-import { FaChevronDown, FaChevronUp, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaChevronDown, FaChevronUp, FaEdit, FaInfoCircle, FaTrash } from 'react-icons/fa';
 import DynamicQuery from '../../components/DynamicQuery';
+import Loader from "@/components/Loader";
+import ErrorCard from "@/components/ErrorCard";
+import DeleteProject from '../../components/DeleteProject';
+import UpdateProjectForm from '@/components/DynamicUpdateForm';
+import { DangerousContentCheck } from '@/utils/custom-validation/CustomValidation';
 
 export default function Page() {
   const {
@@ -14,6 +19,11 @@ export default function Page() {
   } = DynamicQuery('achievement');
 
   const [expandedCards, setExpandedCards] = useState({});
+  const [updateData,setUpdateData]=useState(null);
+  const fields = [
+    { name: "achievement", placeholder: "Enter achievement name", label: "Achievement Name", type: "text", rules: { required: "Achievement Name is required", ...DangerousContentCheck } },
+    {name: "description", placeholder: "Enter achievement description", label: "Achievement Description", type: "textarea", rules: { required: "Achievement Description is required", ...DangerousContentCheck } },
+  ];
 
   useEffect(() => {
     refetch();
@@ -53,32 +63,14 @@ export default function Page() {
       : description;
   };
 
-  if (status === 'pending')
+    if (status === 'pending')
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 py-8 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">
-              Loading achievements...
-            </p>
-          </div>
-        </div>
-      </div>
+      <Loader type={"achievements"}></Loader>
     );
 
-  if (status === 'error')
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 py-8 px-4">
-        <div className="max-w-6xl mx-auto text-center">
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 max-w-md mx-auto">
-            <p className="text-red-600 dark:text-red-400 font-medium">
-              Error fetching achievements!
-            </p>
-          </div>
-        </div>
-      </div>
-    );
+  if (status === "error") return (
+      <ErrorCard type={"achievements"} refetch={refetch}></ErrorCard>
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 py-8 px-4">
@@ -186,12 +178,14 @@ export default function Page() {
                           <td className="px-8 py-6">
                             <div className="flex justify-center gap-3">
                               <button
+                              onClick={()=>setUpdateData({item,path:"achievement",id:item._id,refetch,setUpdateData})}
                                 className="p-3 rounded-xl bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 transition-all duration-200 transform hover:scale-105 shadow-sm"
                                 title="Edit"
                               >
                                 <FaEdit size={18} />
                               </button>
                               <button
+                              onClick={()=>DeleteProject(item?._id,"achievement",refetch)}
                                 className="p-3 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-200 transform hover:scale-105 shadow-sm"
                                 title="Delete"
                               >
@@ -235,12 +229,14 @@ export default function Page() {
                       </div>
                       <div className="flex gap-2">
                         <button
+                         onClick={()=>setUpdateData({item,path:"achievement",id:item._id,refetch,setUpdateData})}
                           className="p-3 rounded-xl bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 transition-all duration-200 shadow-sm"
                           title="Edit"
                         >
                           <FaEdit size={16} />
                         </button>
                         <button
+                          onClick={()=>DeleteProject(item?._id,"achievement",refetch)}
                           className="p-3 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-200 shadow-sm"
                           title="Delete"
                         >
@@ -296,23 +292,27 @@ export default function Page() {
           ))}
         </div>
 
-        {/* Load More Indicator */}
-        <div ref={loadMoreRef} className="w-full text-center mt-12">
+        {/* Load more / end indicator */}
+        <div ref={loadMoreRef} className="w-full text-center mt-8">
           {isFetchingNextPage && (
-            <div className="flex items-center justify-center gap-3 text-blue-600 dark:text-blue-400">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-              <p className="font-medium">Loading more achievements...</p>
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700">
+              <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-gray-700 dark:text-gray-300 font-medium">
+                Loading more achievements...
+              </span>
             </div>
           )}
           {!hasNextPage && data?.pages[0]?.data?.length > 0 && (
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 max-w-md mx-auto">
-              <p className="text-gray-500 dark:text-gray-400 font-medium">
-                🎉 You've reached the end of your achievements!
-              </p>
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl shadow-lg">
+              <FaInfoCircle />
+              <span className="font-medium">
+                All achievements loaded successfully
+              </span>
             </div>
           )}
         </div>
       </div>
+          {updateData && <UpdateProjectForm updateData={updateData} fields={fields}></UpdateProjectForm>}
     </div>
   );
 }
