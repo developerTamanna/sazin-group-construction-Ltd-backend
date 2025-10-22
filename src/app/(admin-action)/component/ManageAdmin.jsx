@@ -26,10 +26,12 @@ import {
   FaUserTie,
 } from 'react-icons/fa';
 import Image from 'next/image';
+import Loader from '@/components/Loader';
+import ErrorCard from '@/components/ErrorCard';
 
 const ManageAdmin = () => {
 
-  const {user , loading} = useSidebar();
+  const {user } = useSidebar();
   const [admins, setAdmins] = useState([]);
   const [viewAdmin,setviewAdmin]=useState(null)
 
@@ -38,8 +40,7 @@ const ManageAdmin = () => {
     const bytes = CryptoJS.AES.decrypt(data, secretKey);
     return bytes.toString(CryptoJS.enc.Utf8);
   };
-  const fetchUsers = async () => {
-    if(!user?.uid) return [];      
+  const fetchUsers = async () => {     
     const res = await axiosInstance.get(`/Auth0781T/manage-admin`);
     const encryptedFields = ["name", "eem"];
     
@@ -58,17 +59,9 @@ const ManageAdmin = () => {
     return result;
   };
   const {
-  data,              // The transformed or raw response data
-  error,             // The actual error object if query fails
-  isLoading,         // True only when the query is loading for the first time
-  isError,           // True if an error occurred
-  isSuccess,         // True if query was successful
-  isFetching,        // True anytime the query is fetching (initial, refetch, bg)
-  isFetched,         // True once the query has been fetched at least once
-  isStale,           // True if the cached data is stale
+  data,              // The transformed or raw response data         // True if the cached data is stale
   refetch,           // Manually trigger a refetch
-  status,            // 'loading' | 'error' | 'success'
-  fetchStatus,       // 'fetching' | 'paused' | 'idle' (newer addition)
+  status           // 'loading' | 'error' | 'success'
    } = useQuery({
       queryKey: ['All admin'],
       queryFn: fetchUsers,
@@ -188,13 +181,16 @@ const ManageAdmin = () => {
   const handleReject = async(id,email,status) => {
     await updateAdmin(id,email,status)
   };
+  console.log("status",status);
+  
+  if (status === 'pending')
+    return (
+      <Loader type={"admins"}></Loader>
+    );
 
-    if(loading || !admins) return (
-    <div className='text-black'>
-       ...Loading data
-    </div>
-
-  )
+  if (status === "error") return (
+      <ErrorCard type={"admins"} refetch={refetch}></ErrorCard>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">

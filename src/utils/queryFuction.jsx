@@ -3,6 +3,9 @@ import Card from '../components/card'
 import React, { useRef, useEffect, use } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchProducts } from "./FetchFunction";
+import ErrorCard from '@/components/ErrorCard';
+import Loader from '@/components/Loader';
+import { FaInfoCircle } from 'react-icons/fa';
 
 export default function QueryFunction({value ,ky}) {
   const {
@@ -46,8 +49,14 @@ export default function QueryFunction({value ,ky}) {
     return () => observer.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  if (status === "loading") return <p>Loading...</p>;
-  if (status === "error") return <p>Error fetching products!</p>;
+ if (status === 'pending')
+    return (
+      <Loader type={"products"}></Loader>
+    );
+
+  if (status === "error") return (
+      <ErrorCard type={"products"} refetch={refetch}></ErrorCard>
+  );
 
   return (
       <>
@@ -55,11 +64,25 @@ export default function QueryFunction({value ,ky}) {
         <Card data={data} refetch={refetch} />
   
 
-      {/* Sentinel element for IntersectionObserver */}
-      <div ref={loadMoreRef} className=" w-full z-[999]  h-10 mt-5 text-center">
-        {isFetchingNextPage && <p className='text-red-500'>Loading more...</p>}
-        {!hasNextPage && <p className="text-gray-500">No more products</p>}
-      </div>
+        {/* Load more / end indicator */}
+        <div ref={loadMoreRef} className="w-full text-center mt-8">
+          {isFetchingNextPage && (
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700">
+              <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-gray-700 dark:text-gray-300 font-medium">
+                Loading more products...
+              </span>
+            </div>
+          )}
+          {!hasNextPage && data?.pages[0]?.data?.length > 0 && (
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl shadow-lg">
+              <FaInfoCircle />
+              <span className="font-medium">
+                All products loaded successfully
+              </span>
+            </div>
+          )}
+        </div>
     </>
   );
 }

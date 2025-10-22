@@ -29,6 +29,8 @@ import {
 
 import toast from 'react-hot-toast';
 import Image from 'next/image';
+import Loader from '@/components/Loader';
+import ErrorCard from '@/components/ErrorCard';
 
 const PendingAdmin = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -129,7 +131,6 @@ const PendingAdmin = () => {
 }
 
   useEffect(()=>{
-    console.log("xmckdnc",pendingRequests);
         const res=filter();
         setfilteredRequests(res);  
     
@@ -192,12 +193,14 @@ const PendingAdmin = () => {
   const showingFrom = totalItems === 0 ? 0 : startIndex + 1;
   const showingTo = Math.min(startIndex + pagedAdmins.length, totalItems);
 
-  if(  loading || !pendingRequests) return (
-    <div className='text-black'>
-       ...Loading data
-    </div>
+  if (status === 'pending')
+    return (
+      <Loader type={"admins"}></Loader>
+    );
 
-  )
+  if (status === "error") return (
+      <ErrorCard type={"admins"} refetch={refetch}></ErrorCard>
+  );
 
 
   return (

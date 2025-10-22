@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useSidebar } from "@/context/SidebarContext";
 import SidebarWrapper from "../app/components/SidebarWrapper";
 import Navbar from "@/components/Navbar";
+import Loader from "@/components/Loader";
 export default function ProtectedLayout({ children }) {
   const { user, loading } = useSidebar();
   const router = useRouter();
@@ -17,7 +18,7 @@ export default function ProtectedLayout({ children }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <p className="text-lg">Loading...</p>
+        <Loader type={"user Info"}></Loader>
       </div>
     ); // loader dekhabe cookie check er age
   }

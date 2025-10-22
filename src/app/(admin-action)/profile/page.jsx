@@ -7,6 +7,8 @@ import axiosInstance from '@/utils/axios';
 import { useSidebar } from '@/context/SidebarContext';
 import toast from 'react-hot-toast';
 import { useQuery } from '@tanstack/react-query';
+import Loader from '@/components/Loader';
+import ErrorCard from '@/components/ErrorCard';
 
 
 
@@ -105,10 +107,14 @@ const Page = () => {
      }
     };
 
+if (loading || isLoading)
+    return (
+      <Loader type={"admins"}></Loader>
+    );
 
-  if (loading || isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  }
+  if (status === "error") return (
+      <ErrorCard type={"admins"} refetch={refetch}></ErrorCard>
+  );
   if (!user || !data) {
     return <div className="min-h-screen flex items-center justify-center">No user data available.</div>;
   }
