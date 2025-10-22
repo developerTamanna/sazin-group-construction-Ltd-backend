@@ -1,10 +1,11 @@
 import React from 'react'
 import ProtectedLayout from '@/utils/ProtectedLayout';
+import Page from './(admin-action)/profile/page';
 export default function Home() {
   return (
     <main className=''>
       <ProtectedLayout>
-        <h1 className='text-4xl font-bold text-center'>Dashboard</h1>
+        <Page></Page>
       </ProtectedLayout>
     </main>
   );

@@ -530,7 +530,7 @@ const PendingAdmin = () => {
                 <div className="relative">
                   <div className="w-32 h-32 bg-white rounded-full p-1 shadow-lg">
                     <Image
-                      src={''}
+                      src={viewAdmin?.imageUrl}
                       alt="Profile"
                       className="w-full h-full rounded-full object-cover border-4 border-white"
                       layout="fill"

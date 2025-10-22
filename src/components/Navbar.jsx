@@ -56,7 +56,7 @@ function Navbar() {
          <Link prefetch={false} href="/profile" className='w-fit h-fit'>
           {/* Profile Image */} 
           <Image
-            src={user?.photoURL || 'https://gravatar.com/avatar/5abc513fc3232e3c780bd5545de495cb?s=400&d=mp&r=x'}
+            src={user?.photoURL || "https://res.cloudinary.com/drexcxkuq/image/upload/v1761113234/project/c8dvhojyj0nwzm9hkfer.webp"}
             alt="Profile"
             width={40}
             height={40}
