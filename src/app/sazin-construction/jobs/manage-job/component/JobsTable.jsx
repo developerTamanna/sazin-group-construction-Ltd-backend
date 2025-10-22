@@ -1,5 +1,6 @@
 'use client';
 import DeleteProject from '@/app/sazin-construction/components/DeleteProject';
+import ViewProjectDetail from './ViewDetails';
 import UpdateProjectForm from '@/components/DynamicUpdateForm';
 import { DangerousContentCheck, DateValidationCheck, NumberValidationCheck } from '@/utils/custom-validation/CustomValidation';
 import { useState } from 'react';
@@ -15,6 +16,7 @@ import {
 
 export default function JobsTable({ jobs,refetch }) {
     const [updateData,setUpdateData]=useState(null);
+    const [viewData,setViewData]=useState(null);
     const fields = [
       { name: "job", placeholder: "Enter job title", label: "Job Title", type: "text", rules: { required: "Job Name is required", ...DangerousContentCheck } },
       { name:'salary', placeholder: "Enter job salary", label: "Salary", type: "number", rules: { required: "Job Salary is required", min: { value: 0, message: "Salary must be a positive number" }, ...NumberValidationCheck } },
@@ -128,6 +130,7 @@ export default function JobsTable({ jobs,refetch }) {
                     <td className="py-5 px-6">
                       <div className="flex justify-center gap-2">
                         <button
+                         onClick={()=>setViewData(job)}
                           className="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:scale-105 transition-all duration-200 shadow-sm group/view"
                           title="View Details"
                         >
@@ -240,6 +243,7 @@ export default function JobsTable({ jobs,refetch }) {
               {/* Actions */}
               <div className="flex justify-center gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
                 <button
+                  onClick={()=>setViewData(job)}
                   className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
                   title="View Details"
                 >
@@ -281,6 +285,7 @@ export default function JobsTable({ jobs,refetch }) {
       </div>
 
       {updateData && <UpdateProjectForm updateData={updateData} fields={fields}></UpdateProjectForm>}
+      {viewData && <ViewProjectDetail job={viewData} setviewData={setViewData}></ViewProjectDetail>}
     </div>
   );
 }
