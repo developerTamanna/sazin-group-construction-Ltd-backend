@@ -9,6 +9,7 @@ import { FaBars, FaTimes } from 'react-icons/fa'; // toggle button icon
 function Sidebar() {
   const { items, dynamicTheme,logout } = useSidebar();
   const [toggle, settoggle] = React.useState(false);
+  const [checkActive,setActive]=React.useState(false);
   const [openSidebar, setOpenSidebar] = React.useState(false); // 🔹 sidebar open/close state
   const pathName = usePathname();
 
@@ -60,17 +61,22 @@ function Sidebar() {
                         item.id === itemid ? false : item.id
                       );
                     }}
-                    className="flex w-full items-center gap-2 p-2 cursor-pointer"
+                    className={`w-full flex items-center gap-2 p-2 ${
+                            (checkActive ===item?.id)
+                              ? dynamicTheme?.sidebarActive
+                              : 'hover:border border-gray-300'
+                          } rounded-tl-md rounded-bl-md cursor-pointer`}
                   >
                     {item.icon}
                     {item.title}
                   </button>
                   {toggle === item.id && (
-                    <ul className="ml-4 bg-transparent text-sm space-y-2">
+                    <ul className="ml-4 mt-2 bg-transparent text-sm space-y-2">
                       {item.categories.map((category) => (
                         <Link
                           href={`${category.path}`}
                           key={category.id}
+                          onClick={()=>setActive(item?.id)}
                           className={`flex items-center gap-2 p-2 ${
                             pathName === `${category.path}`
                               ? dynamicTheme?.sidebarActive
